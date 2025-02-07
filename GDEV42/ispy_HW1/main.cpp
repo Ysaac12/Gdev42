@@ -1,5 +1,8 @@
 #include <raylib.h>
 #include <raymath.h>
+#include <iostream>
+
+using namespace std;
 
 //----------- CONSTANTS ----------
 const int windowWidth = 800;
@@ -19,6 +22,21 @@ struct Object {
     Color color;
     float radius;
 };
+
+//----------- FUNCTION ----------
+void CheckCircleCircleCollision(Cursor c, Object o) {
+    Vector2 normal = Vector2Subtract(c.position, o.position);
+    float distance = Vector2Length(normal);
+
+    float radSum = c.radius + o.radius;
+
+     if (distance <= radSum) {
+        cout << "Colission!" << endl;
+     } else {
+        cout << "FOUND NOTHING" << endl;
+     }
+}
+
 
 //----------- MAIN ----------
 int main() {
@@ -61,6 +79,10 @@ int main() {
         } 
         if (IsKeyPressed(KEY_TAB)) {
             c.find = false;
+        }
+
+        if(IsKeyPressed(KEY_P)) {
+            CheckCircleCircleCollision(c,horse);
         }
 
         if(c.find) {
