@@ -45,9 +45,12 @@ int main() {
 
         // Cursor Movement
         if(IsKeyPressed(KEY_ENTER)){
-            c.find = !c.find;
+            c.find = true;
             camera.target = c.position;
         } 
+        if (IsKeyPressed(KEY_TAB)) {
+            c.find = false;
+        }
 
         if(c.find) {
             camera.zoom = 2.0f;
