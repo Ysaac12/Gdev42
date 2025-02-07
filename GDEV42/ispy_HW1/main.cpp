@@ -50,13 +50,13 @@ int main() {
     float bgHeight = background.height;
 
     Cursor c;
-    c.position = {bgWidth/2, bgHeight/2};  
-    c.color = YELLOW;
-    c.radius = 5.0f;
-    c.speed = 300;
-    c.find = false;
-    c.select = false;
-    c.select = false;
+        c.position = {bgWidth/2, bgHeight/2};  
+        c.color = YELLOW;
+        c.radius = 5.0f;
+        c.speed = 300;
+        c.find = false;
+        c.select = false;
+        c.select = false;
 
     Object horse; 
         horse.position = {1490,1050};
