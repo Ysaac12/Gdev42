@@ -21,6 +21,7 @@ struct Object {
     Vector2 position;
     Color color;
     float radius;
+    bool found;
 };
 
 //----------- FUNCTION ----------
@@ -61,6 +62,7 @@ int main() {
         horse.position = {1490,1050};
         horse.color = BLACK;
         horse.radius = 110;
+        horse.found = false;
 
 
     Camera2D camera = {0};
@@ -84,8 +86,8 @@ int main() {
 
         if(c.find) {
             camera.zoom = 2.0f;
-            if(IsKeyPressed(KEY_ENTER)) {
-                CheckCircleCircleCollision(c,horse);
+            if(IsKeyPressed(KEY_ENTER) && CheckCircleCircleCollision(c,horse)) {
+                horse.found = true;
             }
 
         } else {
@@ -143,7 +145,7 @@ int main() {
 
             DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
             DrawText("Use WASD for movement", 25,25,15,BLACK);
-            if (CheckCircleCircleCollision(c,horse) == false) {
+            if (!horse.found) {
                 DrawText("Horse not found", 35,35,15,RED);
             } else {
                 DrawText("Horse found", 35,35,15,GREEN);
