@@ -14,6 +14,12 @@ struct Cursor {
     bool find, select, center;
 };
 
+struct Object {
+    Vector2 position;
+    Color color;
+    float radius;
+};
+
 //----------- MAIN ----------
 int main() {
     SetTargetFPS(60);
@@ -107,6 +113,7 @@ int main() {
         EndMode2D();
 
             DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
+            DrawText("Use WASD for movement", 25,25,15,BLACK);
 
         EndDrawing();
     }
