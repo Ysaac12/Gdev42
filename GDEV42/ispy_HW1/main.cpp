@@ -37,7 +37,6 @@ void CheckCircleCircleCollision(Cursor c, Object o) {
      }
 }
 
-
 //----------- MAIN ----------
 int main() {
     SetTargetFPS(60);
