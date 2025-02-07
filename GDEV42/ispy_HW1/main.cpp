@@ -24,16 +24,17 @@ struct Object {
 };
 
 //----------- FUNCTION ----------
-void CheckCircleCircleCollision(Cursor c, Object o) {
+bool CheckCircleCircleCollision(Cursor c, Object o) {
     Vector2 normal = Vector2Subtract(c.position, o.position);
     float distance = Vector2Length(normal);
-
     float radSum = c.radius + o.radius;
 
      if (distance <= radSum) {
         cout << "Colission!" << endl;
+        return true;
      } else {
         cout << "FOUND NOTHING" << endl;
+        return false;
      }
 }
 
@@ -76,16 +77,17 @@ int main() {
             c.find = true;
             camera.target = c.position;
         } 
+
         if (IsKeyPressed(KEY_TAB)) {
             c.find = false;
         }
 
-        if(IsKeyPressed(KEY_P)) {
-            CheckCircleCircleCollision(c,horse);
-        }
-
         if(c.find) {
             camera.zoom = 2.0f;
+            if(IsKeyPressed(KEY_ENTER)) {
+                CheckCircleCircleCollision(c,horse);
+            }
+
         } else {
             camera.zoom = 1.0f;
         }
@@ -141,6 +143,11 @@ int main() {
 
             DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
             DrawText("Use WASD for movement", 25,25,15,BLACK);
+            if (CheckCircleCircleCollision(c,horse) == false) {
+                DrawText("Horse not found", 35,35,15,RED);
+            } else {
+                DrawText("Horse found", 35,35,15,GREEN);
+            }
 
         EndDrawing();
     }
