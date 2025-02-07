@@ -39,6 +39,11 @@ int main() {
     c.select = false;
     c.select = false;
 
+    Object horse; 
+        horse.position = {1490,1050};
+        horse.color = BLACK;
+        horse.radius = 110;
+
 
     Camera2D camera = {0};
     camera.rotation = 0.0f;
@@ -109,6 +114,7 @@ int main() {
 
             DrawTexture(background, 0, 0, RAYWHITE);
             DrawCircleV(c.position, c.radius, c.color);
+            DrawCircleLinesV(horse.position, horse.radius, horse.color);
 
         EndMode2D();
 
