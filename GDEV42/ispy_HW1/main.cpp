@@ -197,6 +197,7 @@ Cursor c;
             DrawCircleLinesV(horse.position, horse.radius, horse.color);
             DrawCircleLinesV(globe.position, globe.radius, globe.color);
             DrawCircleLinesV(car.position, car.radius, car.color);
+            DrawCircleLinesV(pawn.position, pawn.radius, pawn.color);
 
         EndMode2D();
 
