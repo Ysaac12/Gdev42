@@ -56,7 +56,6 @@ int main() {
         c.speed = 300;
         c.find = false;
         c.select = false;
-        c.select = false;
 
     Object horse; 
         horse.position = {1490,1050};
@@ -74,7 +73,7 @@ int main() {
     while (!WindowShouldClose()) {
         float delta_time = GetFrameTime();
 
-        // Cursor Movement
+        // Cursor Selection
         if(IsKeyReleased(KEY_ENTER)){
             c.find = true;
             camera.target = c.position;
@@ -96,8 +95,11 @@ int main() {
 
         if(c.select && CheckCircleCircleCollision(c,horse)) {
             horse.found = true;
-        } 
+        } else {
+            c.select = false;
+        }
 
+         // Cursor Movement
         if(IsKeyDown(KEY_W)){
             c.position.y -= c.speed * delta_time;
         }
