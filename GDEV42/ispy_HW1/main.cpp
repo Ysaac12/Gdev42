@@ -38,6 +38,14 @@ bool CheckCircleCircleCollision(Cursor c, Object o) {
         return false;
      }
 }
+
+void drawObjectText(Object o, float x, float y, float size) {
+    if (!o.found) {
+        DrawText(TextFormat("%s not found", o.name.c_str()), x,y,size,RED);
+    } else {
+        DrawText(TextFormat("%s found", o.name.c_str()), x,y,size,GREEN);
+    }
+}
 //----------- VARIABLE ----------
 string backgroundName;
 int boxWidth, boxHeight, minCameraEdgeX, maxCameraEdgeX, minCameraEdgeY, maxCameraEdgeY;
@@ -189,11 +197,11 @@ Cursor c;
             DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
             DrawText(TextFormat("%.2f, %.2f",c.position.x,c.position.y), 45,550,15,BLACK);
             DrawText("Use WASD for movement", 25,25,15,BLACK);
-            if (!horse.found) {
-                DrawText("Horse not found", 35,35,15,RED);
-            } else {
-                DrawText("Horse found", 35,35,15,GREEN);
-            }
+            drawObjectText(horse, 45,45,15);
+            drawObjectText(pterodactyl, 45,60,15);
+            drawObjectText(globe, 45,75,15);
+            drawObjectText(car, 45,90,15);
+            drawObjectText(pawn, 45,105,15);
 
         EndDrawing();
     }
