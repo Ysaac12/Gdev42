@@ -1,14 +1,15 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <iostream>
+#include <fstream>
 
 using namespace std;
 
 //----------- CONSTANTS ----------
 const int windowWidth = 800;
 const int windowHeight = 600;
-const int boxWidth = 400;  
-const int boxHeight = 300; 
+// const int boxWidth = 400;  
+// const int boxHeight = 300; 
 //----------- STRUCTURES ----------
 struct Cursor {
     Vector2 position;
@@ -38,30 +39,36 @@ bool CheckCircleCircleCollision(Cursor c, Object o) {
         return false;
      }
 }
+//----------- VARIABLE ----------
+string backgroundName, objectOneName;
+int boxWidth, boxHeight, minCameraEdgeX, maxCameraEdgeX, minCameraEdgeY, maxCameraEdgeY;
 
 //----------- MAIN ----------
 int main() {
     SetTargetFPS(60);
     InitWindow(windowWidth, windowHeight, "Cool math games");
 
-    Texture2D background = LoadTexture("ispy.png");
+Object horse; 
+    horse.color = BLACK;
+    horse.radius = 110;
+    horse.found = false;
+
+    ifstream infile("setting.txt");
+    infile >> backgroundName >> objectOneName >> horse.position.x >> horse.position.y >> minCameraEdgeX >> maxCameraEdgeX >> minCameraEdgeY >> maxCameraEdgeY >> boxWidth >> boxHeight;
+    cout << backgroundName << " " << objectOneName << " " << horse.position.x << " " << horse.position.y << " " ;
+
+    Texture2D background = LoadTexture(backgroundName.c_str());
 
     float bgWidth = background.width;
     float bgHeight = background.height;
 
-    Cursor c;
-        c.position = {bgWidth/2, bgHeight/2};  
-        c.color = YELLOW;
-        c.radius = 5.0f;
-        c.speed = 300;
-        c.find = false;
-        c.select = false;
-
-    Object horse; 
-        horse.position = {1490,1050};
-        horse.color = BLACK;
-        horse.radius = 110;
-        horse.found = false;
+Cursor c;
+    c.position = {bgWidth/2, bgHeight/2};  
+    c.color = YELLOW;
+    c.radius = 5.0f;
+    c.speed = 300;
+    c.find = false;
+    c.select = false;
 
 
     Camera2D camera = {0};
@@ -138,8 +145,11 @@ int main() {
         }
 
         // Edge Snapping
-        camera.target.x = Clamp(camera.target.x, windowWidth / 2, bgWidth - windowWidth / 2);
-        camera.target.y = Clamp(camera.target.y, windowHeight / 2, bgHeight - windowHeight / 2);
+        camera.target.x = Clamp(camera.target.x, minCameraEdgeX, maxCameraEdgeX);
+        camera.target.y = Clamp(camera.target.y, minCameraEdgeY, maxCameraEdgeY);
+
+        // camera.target.x = Clamp(camera.target.x, windowWidth / 2, bgWidth - windowWidth / 2);
+        // camera.target.y = Clamp(camera.target.y, windowHeight / 2, bgHeight - windowHeight / 2);
 
         BeginDrawing();
 
