@@ -8,8 +8,6 @@ using namespace std;
 //----------- CONSTANTS ----------
 const int windowWidth = 800;
 const int windowHeight = 600;
-// const int boxWidth = 400;  
-// const int boxHeight = 300; 
 //----------- STRUCTURES ----------
 struct Cursor {
     Vector2 position;
@@ -53,14 +51,13 @@ Object horse;
     horse.radius = 110;
     horse.found = false;
 
-    ifstream infile("setting.txt");
-    infile >> backgroundName >> objectOneName >> horse.position.x >> horse.position.y >> minCameraEdgeX >> maxCameraEdgeX >> minCameraEdgeY >> maxCameraEdgeY >> boxWidth >> boxHeight;
-    cout << backgroundName << " " << objectOneName << " " << horse.position.x << " " << horse.position.y << " " ;
+ifstream infile("setting.txt");
+infile >> backgroundName >> objectOneName >> horse.position.x >> horse.position.y >> minCameraEdgeX >> maxCameraEdgeX >> minCameraEdgeY >> maxCameraEdgeY >> boxWidth >> boxHeight;
 
-    Texture2D background = LoadTexture(backgroundName.c_str());
+Texture2D background = LoadTexture(backgroundName.c_str());
 
-    float bgWidth = background.width;
-    float bgHeight = background.height;
+float bgWidth = background.width;
+float bgHeight = background.height;
 
 Cursor c;
     c.position = {bgWidth/2, bgHeight/2};  
@@ -147,9 +144,6 @@ Cursor c;
         // Edge Snapping
         camera.target.x = Clamp(camera.target.x, minCameraEdgeX, maxCameraEdgeX);
         camera.target.y = Clamp(camera.target.y, minCameraEdgeY, maxCameraEdgeY);
-
-        // camera.target.x = Clamp(camera.target.x, windowWidth / 2, bgWidth - windowWidth / 2);
-        // camera.target.y = Clamp(camera.target.y, windowHeight / 2, bgHeight - windowHeight / 2);
 
         BeginDrawing();
 
