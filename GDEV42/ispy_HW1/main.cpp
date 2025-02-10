@@ -46,6 +46,14 @@ void drawObjectText(Object o, float x, float y, float size) {
         DrawText(TextFormat("%s found", o.name.c_str()), x,y,size,GREEN);
     }
 }
+
+void handleObjectCollission(Cursor c, Object *o) {
+    if(c.select && CheckCircleCircleCollision(c,*o)) {
+        o->found = true;
+    } else {
+        c.select = false;
+    }
+}
 //----------- VARIABLE ----------
 string backgroundName;
 int boxWidth, boxHeight, minCameraEdgeX, maxCameraEdgeX, minCameraEdgeY, maxCameraEdgeY;
@@ -75,8 +83,6 @@ Object pawn;
     pawn.radius = 80;
     pawn.color = BLACK;
     pawn.found = false;
-
-    
 
 ifstream infile("setting.txt");
 infile >> backgroundName >> 
@@ -124,16 +130,16 @@ Cursor c;
         if(c.find) {
             camera.zoom = 2.0f;
             if(IsKeyPressed(KEY_ENTER)) {
-                c.select = true;
+                c.select = true;                            // kinda useless
+                handleObjectCollission(c, &horse);
+                handleObjectCollission(c, &pterodactyl);
+                handleObjectCollission(c, &globe);
+                handleObjectCollission(c, &car);
+                handleObjectCollission(c, &pawn);
+        
             }
         } else {
             camera.zoom = 1.0f;
-            c.select = false;
-        }
-
-        if(c.select && CheckCircleCircleCollision(c,horse)) {
-            horse.found = true;
-        } else {
             c.select = false;
         }
 
