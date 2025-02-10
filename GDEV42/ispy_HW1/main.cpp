@@ -120,18 +120,22 @@ int main() {
         float topEdge = camera.target.y - boxHeight / 2;
         float bottomEdge = camera.target.y + boxHeight / 2;
 
-        if (c.position.x < leftEdge) {
-            camera.target.x += c.position.x - leftEdge;
+
+        // Camera Target Movement
+        if (!c.find) {
+           if (c.position.x < leftEdge) {
+                camera.target.x += c.position.x - leftEdge;
+            }
+            if (c.position.x > rightEdge) {
+                camera.target.x += c.position.x - rightEdge;
+            }
+            if (c.position.y < topEdge) {
+                camera.target.y += c.position.y - topEdge;
+            }
+            if (c.position.y > bottomEdge) {
+                camera.target.y += c.position.y - bottomEdge;
+            } 
         }
-        if (c.position.x > rightEdge) {
-            camera.target.x += c.position.x - rightEdge;
-        }
-        if (c.position.y < topEdge) {
-            camera.target.y += c.position.y - topEdge;
-        }
-        if (c.position.y > bottomEdge) {
-            camera.target.y += c.position.y - bottomEdge;
-        } 
 
         // Edge Snapping
         camera.target.x = Clamp(camera.target.x, windowWidth / 2, bgWidth - windowWidth / 2);
