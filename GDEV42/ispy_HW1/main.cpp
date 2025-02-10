@@ -75,7 +75,7 @@ int main() {
         float delta_time = GetFrameTime();
 
         // Cursor Movement
-        if(IsKeyPressed(KEY_ENTER)){
+        if(IsKeyReleased(KEY_ENTER)){
             c.find = true;
             camera.target = c.position;
         } 
@@ -86,13 +86,17 @@ int main() {
 
         if(c.find) {
             camera.zoom = 2.0f;
-            if(IsKeyPressed(KEY_ENTER) && CheckCircleCircleCollision(c,horse)) {
-                horse.found = true;
+            if(IsKeyPressed(KEY_ENTER)) {
+                c.select = true;
             }
-
         } else {
             camera.zoom = 1.0f;
+            c.select = false;
         }
+
+        if(c.select && CheckCircleCircleCollision(c,horse)) {
+            horse.found = true;
+        } 
 
         if(IsKeyDown(KEY_W)){
             c.position.y -= c.speed * delta_time;
