@@ -1,5 +1,9 @@
 ispy.png
 horse 1490 1050
+pterodactyl 290 250
+globe 1760 440
+car 1840 1480
+pawn 420 1400
 400 2000
 300 1500
 400 300

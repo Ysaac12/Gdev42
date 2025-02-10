@@ -17,6 +17,7 @@ struct Cursor {
 };
 
 struct Object {
+    string name;
     Vector2 position;
     Color color;
     float radius;
@@ -38,7 +39,7 @@ bool CheckCircleCircleCollision(Cursor c, Object o) {
      }
 }
 //----------- VARIABLE ----------
-string backgroundName, objectOneName;
+string backgroundName;
 int boxWidth, boxHeight, minCameraEdgeX, maxCameraEdgeX, minCameraEdgeY, maxCameraEdgeY;
 
 //----------- MAIN ----------
@@ -50,9 +51,34 @@ Object horse;
     horse.color = BLACK;
     horse.radius = 110;
     horse.found = false;
+Object pterodactyl;
+    pterodactyl.color = BLACK;
+    pterodactyl.radius = 200;
+    pterodactyl.found = false;
+Object globe;
+    globe.radius = 120;
+    globe.color = BLACK;
+    globe.found = false;
+Object car;
+    car.radius = 145;
+    car.color = BLACK;
+    car.found = false;
+Object pawn;
+    pawn.radius = 80;
+    pawn.color = BLACK;
+    pawn.found = false;
+
+    
 
 ifstream infile("setting.txt");
-infile >> backgroundName >> objectOneName >> horse.position.x >> horse.position.y >> minCameraEdgeX >> maxCameraEdgeX >> minCameraEdgeY >> maxCameraEdgeY >> boxWidth >> boxHeight;
+infile >> backgroundName >> 
+horse.name >> horse.position.x >> horse.position.y >> 
+pterodactyl.name >> pterodactyl.position.x >> pterodactyl.position.y >>
+globe.name >> globe.position.x >> globe.position.y >>
+car.name >> car.position.x >> car.position.y >>
+pawn.name >> pawn.position.x >> pawn.position.y >>
+minCameraEdgeX>> maxCameraEdgeX >> minCameraEdgeY >>
+maxCameraEdgeY >> boxWidth >> boxHeight;
 
 Texture2D background = LoadTexture(backgroundName.c_str());
 
@@ -153,11 +179,15 @@ Cursor c;
 
             DrawTexture(background, 0, 0, RAYWHITE);
             DrawCircleV(c.position, c.radius, c.color);
+            DrawCircleLinesV(pterodactyl.position,pterodactyl.radius,pterodactyl.color);
             DrawCircleLinesV(horse.position, horse.radius, horse.color);
+            DrawCircleLinesV(globe.position, globe.radius, globe.color);
+            DrawCircleLinesV(car.position, car.radius, car.color);
 
         EndMode2D();
 
             DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
+            DrawText(TextFormat("%.2f, %.2f",c.position.x,c.position.y), 45,550,15,BLACK);
             DrawText("Use WASD for movement", 25,25,15,BLACK);
             if (!horse.found) {
                 DrawText("Horse not found", 35,35,15,RED);
