@@ -211,7 +211,6 @@ int main() {
             }
            
             // Edge Snapping using camera offset
-            camera.offset = { windowWidth / 2, windowHeight / 2 };
 
             float leftBound = minCameraEdgeX + windowWidth/(2*camera.zoom);
             float rightBound = maxCameraEdgeX - windowWidth/(2*camera.zoom);
@@ -219,17 +218,17 @@ int main() {
             float bottomBound = maxCameraEdgeY - windowHeight/(2*camera.zoom);
 
             if (camera.target.x < leftBound) {
-                camera.offset.x = windowWidth/2 + (camera.target.x - leftBound) * camera.zoom;
+                camera.offset.x = windowWidth/2 + (camera.target.x - leftBound) ;
             } else if (camera.target.x > rightBound) {
-                camera.offset.x = windowWidth/2 + (camera.target.x - rightBound) * camera.zoom;
+                camera.offset.x = windowWidth/2 + (camera.target.x - rightBound) ;
             } else {
                 camera.offset.x = windowWidth/2;
             }
 
             if (camera.target.y < topBound) {
-                camera.offset.y = windowHeight/2 + (camera.target.y - topBound) * camera.zoom;
+                camera.offset.y = windowHeight/2 + (camera.target.y - topBound) ;
             } else if (camera.target.y > bottomBound) {
-                camera.offset.y = windowHeight/2 + (camera.target.y - bottomBound) * camera.zoom;
+                camera.offset.y = windowHeight/2 + (camera.target.y - bottomBound) ;
             } else {
                 camera.offset.y = windowHeight/2;
             }
