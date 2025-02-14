@@ -64,7 +64,7 @@ Vector2 cameraDirection(Vector2 c, Vector2 mp) {
 string backgroundName;
 int boxWidth, boxHeight, minCameraEdgeX, maxCameraEdgeX, minCameraEdgeY, maxCameraEdgeY;
 float cameraDrift;
-bool cameraMoving, gameEnd;
+bool cameraMoving, gameEnd, showBox;
 
 //----------- MAIN ----------
 int main() {
@@ -72,6 +72,7 @@ int main() {
     InitWindow(windowWidth, windowHeight, "Cool math games");
 
     gameEnd = false;
+    showBox = false;
 
     Object horse; 
         horse.color = BLACK;
@@ -112,7 +113,7 @@ int main() {
 
     Cursor c;
         c.position = {bgWidth/2, bgHeight/2};  
-        c.color = YELLOW;
+        c.color = DARKBROWN;
         c.radius = 5.0f;
         c.speed = 300;
         c.find = false;
@@ -153,6 +154,11 @@ int main() {
                 camera.zoom = 1.0f;
                 c.select = false;
             }
+
+            if(IsKeyPressed(KEY_Q)){
+                showBox = !showBox;
+            };
+
 
             // Cursor Movement
             if(IsKeyDown(KEY_W)){
@@ -203,10 +209,30 @@ int main() {
                     camera.target = c.position;
                 }
             }
+           
+            // Edge Snapping using camera offset
+            camera.offset = { windowWidth / 2, windowHeight / 2 };
 
-            // Edge Snapping
-            camera.target.x = Clamp(camera.target.x, minCameraEdgeX, maxCameraEdgeX);
-            camera.target.y = Clamp(camera.target.y, minCameraEdgeY, maxCameraEdgeY);
+            float leftBound = minCameraEdgeX + windowWidth/(2*camera.zoom);
+            float rightBound = maxCameraEdgeX - windowWidth/(2*camera.zoom);
+            float topBound = minCameraEdgeY + windowHeight/(2*camera.zoom);
+            float bottomBound = maxCameraEdgeY - windowHeight/(2*camera.zoom);
+
+            if (camera.target.x < leftBound) {
+                camera.offset.x = windowWidth/2 + (camera.target.x - leftBound) * camera.zoom;
+            } else if (camera.target.x > rightBound) {
+                camera.offset.x = windowWidth/2 + (camera.target.x - rightBound) * camera.zoom;
+            } else {
+                camera.offset.x = windowWidth/2;
+            }
+
+            if (camera.target.y < topBound) {
+                camera.offset.y = windowHeight/2 + (camera.target.y - topBound) * camera.zoom;
+            } else if (camera.target.y > bottomBound) {
+                camera.offset.y = windowHeight/2 + (camera.target.y - bottomBound) * camera.zoom;
+            } else {
+                camera.offset.y = windowHeight/2;
+            }
 
             if(horse.found && pterodactyl.found && globe.found && car.found && pawn.found) {
                 gameEnd = true;
@@ -219,24 +245,29 @@ int main() {
             BeginMode2D(camera);
 
                 DrawTexture(background, 0, 0, RAYWHITE);
-                DrawCircleV(c.position, c.radius, c.color);
-                DrawCircleLinesV(pterodactyl.position,pterodactyl.radius,pterodactyl.color);
-                DrawCircleLinesV(horse.position, horse.radius, horse.color);
-                DrawCircleLinesV(globe.position, globe.radius, globe.color);
-                DrawCircleLinesV(car.position, car.radius, car.color);
-                DrawCircleLinesV(pawn.position, pawn.radius, pawn.color);
+                DrawCircleV(c.position, c.radius, c.color); 
+                if(showBox) {
+                    DrawCircleLinesV(pterodactyl.position,pterodactyl.radius,pterodactyl.color);
+                    DrawCircleLinesV(horse.position, horse.radius, horse.color);
+                    DrawCircleLinesV(globe.position, globe.radius, globe.color);
+                    DrawCircleLinesV(car.position, car.radius, car.color);
+                    DrawCircleLinesV(pawn.position, pawn.radius, pawn.color);
+                }
 
             EndMode2D();
 
                 if(!gameEnd){
-                    DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
+                    if(showBox){
+                        DrawRectangleLines(195, 145, boxWidth+10, boxHeight+10, RED);
+                    }
                     DrawText(TextFormat("%.2f, %.2f",c.position.x,c.position.y), 45,550,15,BLACK);
                     DrawText("Use WASD for movement", 25,25,15,BLACK);
-                    drawObjectText(horse, 45,45,15);
-                    drawObjectText(pterodactyl, 45,60,15);
-                    drawObjectText(globe, 45,75,15);
-                    drawObjectText(car, 45,90,15);
-                drawObjectText(pawn, 45,105,15);
+                    DrawText("Press Q for hint", 25,45,15,BLACK);
+                    drawObjectText(horse, 45,60,15);
+                    drawObjectText(pterodactyl, 45,75,15);
+                    drawObjectText(globe, 45,90,15);
+                    drawObjectText(car, 45,105,15);
+                    drawObjectText(pawn, 45,120,15);
                 }
 
                 if(gameEnd) {
