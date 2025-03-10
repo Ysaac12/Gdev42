@@ -34,9 +34,9 @@ Enemy::Enemy(Vector2 pos, float w, float h, float spd) {
 
 void EnemyWandering::Enter(Enemy& enemy) {
     enemy.color = LIME;
-    enemy.wanderingTimer = 5.0f;
-    float randXCoord = GetRandomValue(0,1280);
-    float randYCoord = GetRandomValue(0,720);
+    enemy.wanderingTimer = 3.0f;
+    float randXCoord = GetRandomValue(0,1160);
+    float randYCoord = GetRandomValue(0,680);
     Vector2 tp = {randXCoord, randYCoord};
     enemy.targetPosition = tp;
 
@@ -47,13 +47,13 @@ void EnemyWandering::Update(Enemy& enemy, float deltaTime) {
     
     enemy.direction = Vector2Normalize(faceTarget(enemy.targetPosition, enemy.position));
 
-    enemy.wanderingTimer -= deltaTime;
     
     enemy.position.x += enemy.direction.x * enemy.speed * deltaTime;
     enemy.position.y += enemy.direction.y * enemy.speed * deltaTime;
 
     if(Vector2Distance(enemy.position, enemy.targetPosition) <= 10.0f) {
         enemy.position = enemy.targetPosition;
+        enemy.wanderingTimer -= deltaTime;
     };
 
     if(enemy.wanderingTimer <= 0) {
