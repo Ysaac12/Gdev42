@@ -6,6 +6,7 @@
 
 class Enemy;
 
+
 class EnemyState {
 public: 
     virtual ~EnemyState() {}
@@ -19,26 +20,27 @@ public:
     void Update(Enemy& enemy, float deltaTime);
 };
 
-class EnemyChasing : public EnemyState {
-public:
-    void Enter(Enemy& enemy);
-    void Update(Enemy& enemy, float deltaTime);
-};
+// class EnemyChasing : public EnemyState {
+// public:
+//     void Enter(Enemy& enemy);
+//     void Update(Enemy& enemy, float deltaTime);
+// };
 
-class EnemyAttack : public EnemyState {
-public:
-    void Enter(Enemy& enemy);
-    void Update(Enemy& enemy, float deltaTime);
-};
+// class EnemyAttack : public EnemyState {
+// public:
+//     void Enter(Enemy& enemy);
+//     void Update(Enemy& enemy, float deltaTime);
+// };
 
-class EnemyAttackCharge : public EnemyState {
-    void Enter(Enemy& enemy);
-    void Update(Enemy& enemy, float deltaTime);
-};
+// class EnemyAttackCharge : public EnemyState {
+//     void Enter(Enemy& enemy);
+//     void Update(Enemy& enemy, float deltaTime);
+// };
 
 class Enemy {
 public:
     Vector2 position;
+    Vector2 targetPosition;
     Vector2 direction;
     Vector2 velocity;
     float detectionRange;
@@ -46,14 +48,24 @@ public:
     float attackRange;
     Vector2 chargeVel;
     int width, height;
-    float speed;
+    float speed, wanderingTimer;
     Color color;
 
     EnemyWandering wandering;
-    EnemyChasing chase;
-    EnemyAttack attack;
-    EnemyAttackCharge charge;
+    // EnemyChasing chase;
+    // EnemyAttack attack;
+    // EnemyAttackCharge charge;
 
+    Enemy(Vector2 pos, float width, float height, float speed);
+    
+    void Update(float deltaTime);
+    void Draw();
+    void SetState(EnemyState* new_state);
+
+private:
+    EnemyState* current_state;
+
+    void FindPlayerPosition(Vector2& enemy, Vector2& player);
 
 };
 
