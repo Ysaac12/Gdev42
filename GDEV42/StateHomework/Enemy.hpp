@@ -56,7 +56,7 @@ public:
     // EnemyAttack attack;
     // EnemyAttackCharge charge;
 
-    Enemy(Vector2 pos, float width, float height, float speed);
+    Enemy(Vector2 pos, float width, float height, float speed, float detectionRange, float aggroRange, float attackRange);
     
     void Update(float deltaTime);
     void Draw();

@@ -16,7 +16,10 @@ void Enemy::Update(float deltaTime) {
 };
 
 void Enemy::Draw() {
-    DrawRectangle(position.x, position.y, width, height, color);
+    DrawRectangle(position.x-20, position.y-20, width, height, color);
+    DrawCircleLinesV(position, attackRange, RED);
+    DrawCircleLinesV(position, aggroRange, ORANGE);
+    DrawCircleLinesV(position, detectionRange, YELLOW);
 };
 
 void Enemy::SetState(EnemyState* new_state) {
@@ -24,11 +27,14 @@ void Enemy::SetState(EnemyState* new_state) {
     current_state ->Enter(*this);
 };
 
-Enemy::Enemy(Vector2 pos, float w, float h, float spd) {
+Enemy::Enemy(Vector2 pos, float w, float h, float spd, float detectRad, float aggroRad, float attackRad) {
     position = pos;
     width = w;
     height = h;
     speed = spd;
+    detectionRange = detectRad;
+    aggroRange = aggroRad;
+    attackRange = attackRad;
     SetState(&wandering);
 }
 

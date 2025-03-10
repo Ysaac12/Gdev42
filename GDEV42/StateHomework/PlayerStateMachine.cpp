@@ -92,6 +92,12 @@ void PlayerMoving::Update(Player& player, float delta_time) {
     player.velocity = Vector2Zero();
     player.direction = Vector2Zero();
 
+    if(IsKeyDown(KEY_LEFT_SHIFT)) {
+        player.speed = 400;
+    } else {
+        player.speed = 200;
+    }
+
     if(IsKeyDown(KEY_W)) {
         player.direction.y -=1;
         player.velocity.y -= 1.0f * player.speed * delta_time;
