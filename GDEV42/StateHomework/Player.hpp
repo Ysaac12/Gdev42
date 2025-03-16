@@ -24,7 +24,10 @@
 #include <raylib.h>
 #include <raymath.h>
 
+#include "Entity.hpp"
+
 // Declaring the Player Class so that the PlayerState classes can have a reference to it
+class Enemy;
 class Player;
 
 
@@ -94,16 +97,10 @@ class PlayerBlocking : public PlayerState {
 Player class
 This is the Class that all the States are referencing in their functions
 */
-class Player {
+class Player : public Entity{
 public:
     // Public Members of the Player class
-    Vector2 position;
-    Vector2 direction;
     Vector2 dodgeVel;
-    float radius;
-    Color color;
-    Vector2 velocity;
-    float speed;
     float dashDistance;
     float attackCD;
     float dodgeTimer;

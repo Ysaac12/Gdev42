@@ -1,7 +1,10 @@
 #include <raylib.h>
 #include <raymath.h>
 #include <iostream>
+
 #include "Enemy.hpp"
+#include "Player.hpp"
+#include "Collision.hpp"
 
 using namespace std;
 
@@ -11,9 +14,12 @@ Vector2 faceTarget(Vector2 startPos, Vector2 endPos) {
     return ft;
 };
 
-void Enemy::Update(float deltaTime) {
-    current_state ->Update(*this, deltaTime);
-};
+void Enemy::Update(float deltaTime, Player& player) {
+    if (current_state) {
+        current_state->Update(*this, deltaTime, player);
+    }
+}
+
 
 void Enemy::Draw() {
     DrawRectangle(position.x-20, position.y-20, width, height, color);
@@ -27,15 +33,9 @@ void Enemy::SetState(EnemyState* new_state) {
     current_state ->Enter(*this);
 };
 
-Enemy::Enemy(Vector2 pos, float w, float h, float spd, float detectRad, float aggroRad, float attackRad) {
-    position = pos;
-    width = w;
-    height = h;
-    speed = spd;
-    detectionRange = detectRad;
-    aggroRange = aggroRad;
-    attackRange = attackRad;
-    SetState(&wandering);
+Enemy::Enemy(Vector2 pos, float w, float h, float spd, float detectRad, float aggroRad, float attackRad) 
+    : Entity(100, pos, w, h, 20.0f, spd), detectionRange(detectRad), aggroRange(aggroRad), attackRange(attackRad), wanderingTimer(3.0f) {
+    SetState(&wandering); 
 }
 
 void EnemyWandering::Enter(Enemy& enemy) {
@@ -45,15 +45,14 @@ void EnemyWandering::Enter(Enemy& enemy) {
     float randYCoord = GetRandomValue(0,680);
     Vector2 tp = {randXCoord, randYCoord};
     enemy.targetPosition = tp;
-
-    cout << tp.x << " " << tp.y << endl;
 }
 
-void EnemyWandering::Update(Enemy& enemy, float deltaTime) {
+void EnemyWandering::Update(Enemy& enemy, float deltaTime, Player& player) {
+
+    bool enemyDetect, enemyAggro, enemyAttack;
     
     enemy.direction = Vector2Normalize(faceTarget(enemy.targetPosition, enemy.position));
 
-    
     enemy.position.x += enemy.direction.x * enemy.speed * deltaTime;
     enemy.position.y += enemy.direction.y * enemy.speed * deltaTime;
 
@@ -65,6 +64,32 @@ void EnemyWandering::Update(Enemy& enemy, float deltaTime) {
     if(enemy.wanderingTimer <= 0) {
         enemy.SetState(&enemy.wandering);
     };
+
+    
+    if (CheckCircleCollision(enemy.position, enemy.detectionRange, player.position, player.radius)) {
+        enemy.SetState(&enemy.chase);
+    }
+
+}
+
+void EnemyChasing::Enter(Enemy& enemy) {
+    enemy.color = RED;
+}
+
+void EnemyChasing::Update(Enemy& enemy, float deltaTime, Player& player) {
+    enemy.direction = Vector2Normalize(faceTarget(player.position, enemy.position));
+    enemy.position.x += enemy.direction.x * enemy.speed * deltaTime;
+    enemy.position.y += enemy.direction.y * enemy.speed * deltaTime;
+
+    if (!CheckCircleCollision(enemy.position, enemy.aggroRange, player.position, player.radius)) {
+        enemy.SetState(&enemy.wandering);
+    }
+
+    if (!CheckCircleCollision(enemy.position, enemy.attackRange, player.position, player.radius)) {
+        enemy.SetState(&enemy.attack);
+    }
+
+
 }
 
 

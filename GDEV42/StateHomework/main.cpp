@@ -12,7 +12,8 @@ const int FPS = 60;
 
 int main() {
     Player* player = new Player(Vector2 {100,100}, 10, 200);
-    Enemy* enemy = new Enemy(Vector2 {WINDOW_WIDTH/2,WINDOW_HEIGHT/2}, 40, 40, 100, 240, 120, 60);
+    Enemy* enemy = new Enemy(Vector2 {WINDOW_WIDTH/2, WINDOW_HEIGHT/2}, 40, 40, 100, 200, 360, 120);
+
 
     InitWindow(WINDOW_WIDTH,WINDOW_HEIGHT, "cool world");
     SetTargetFPS(FPS);
@@ -21,7 +22,7 @@ int main() {
         float deltaTime = GetFrameTime();
 
         player->Update(deltaTime);
-        enemy->Update(deltaTime);
+        enemy->Update(deltaTime, * player);
         
 
         BeginDrawing();

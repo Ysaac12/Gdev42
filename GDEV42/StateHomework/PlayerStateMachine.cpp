@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "Player.hpp"
+#include "Collision.cpp"
 
 using namespace std;
 
@@ -47,10 +48,8 @@ void Player::SetState(PlayerState* new_state) {
 // Definition of the Player Class' Constructor
 // Uses pos, rad, and spd to set the Player's initial position, radius, and speed
 // Calls the Player::SetState(PlayerState* new_state) function and passes the idle state of the Player 
-Player::Player(Vector2 pos, float rad, float spd) {
-    position = pos;
-    radius = rad;
-    speed = spd;
+Player::Player(Vector2 pos, float rad, float spd)
+    : Entity(100, pos, 0, 0, rad, spd) {
     SetState(&idle);
 }
 
