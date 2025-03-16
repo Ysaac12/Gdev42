@@ -85,7 +85,7 @@ void EnemyChasing::Update(Enemy& enemy, float deltaTime, Player& player) {
         enemy.SetState(&enemy.wandering);
     }
 
-    if (!CheckCircleCollision(enemy.position, enemy.attackRange, player.position, player.radius)) {
+    if (CheckCircleCollision(enemy.position, enemy.attackRange, player.position, player.radius)) {
         enemy.SetState(&enemy.chargeAttack);
     }
 
@@ -104,6 +104,32 @@ void EnemyChargingAttack::Update(Enemy& enemy, float deltaTime, Player& player) 
         enemy.SetState(&enemy.attack);
     };
 }
+
+void EnemyAttack::Enter(Enemy& enemy) {
+    enemy.checkDirection = true;
+    enemy.color = DARKBLUE;
+    
+
+    
+};
+
+void EnemyAttack::Update(Enemy& enemy, float deltaTime, Player& player) {
+    
+    if (enemy.checkDirection){
+    enemy.targetPosition = player.position;
+    enemy.direction = Vector2Normalize(faceTarget(enemy.targetPosition, enemy.position));
+    enemy.checkDirection = false;
+    }
+
+    enemy.chargeVel = Vector2Scale(enemy.direction, 100/ 0.3f);
+    enemy.position = Vector2Add(enemy.position, Vector2Scale(enemy.chargeVel, deltaTime));
+
+    if (Vector2Distance(enemy.position, enemy.targetPosition) <= 10) {
+        enemy.position = enemy.targetPosition;
+        enemy.SetState(&enemy.wandering);
+    };
+};
+
 
 
 

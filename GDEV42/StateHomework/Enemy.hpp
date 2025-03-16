@@ -45,6 +45,7 @@ public:
     Vector2 chargeVel;
     float detectionRange, attackRange, aggroRange;
     float wanderingTimer, attackChargeTimer;
+    bool checkDirection;
 
     EnemyWandering wandering;
     EnemyChasing chase;
