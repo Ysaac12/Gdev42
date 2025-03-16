@@ -86,11 +86,25 @@ void EnemyChasing::Update(Enemy& enemy, float deltaTime, Player& player) {
     }
 
     if (!CheckCircleCollision(enemy.position, enemy.attackRange, player.position, player.radius)) {
-        enemy.SetState(&enemy.attack);
+        enemy.SetState(&enemy.chargeAttack);
     }
 
 
 }
+
+void EnemyChargingAttack::Enter(Enemy& enemy) {
+    enemy.color = BLUE;
+    enemy.attackChargeTimer = 3.0f;
+};
+
+void EnemyChargingAttack::Update(Enemy& enemy, float deltaTime, Player& player) {
+    enemy.attackChargeTimer -= deltaTime;
+
+    if(enemy.attackChargeTimer <= 0) {
+        enemy.SetState(&enemy.attack);
+    };
+}
+
 
 
 

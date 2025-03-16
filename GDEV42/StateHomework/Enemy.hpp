@@ -28,7 +28,14 @@ public:
     void Update(Enemy& enemy, float deltaTime, Player& player) override;  
 };
 
-class EnemyAttacking : public EnemyState {
+
+
+class EnemyChargingAttack : public EnemyState {
+    void Enter(Enemy& enemy) override;
+    void Update(Enemy& enemy, float deltaTime, Player& player) override;
+};
+
+class EnemyAttack : public EnemyState {
     void Enter(Enemy& enemy) override;
     void Update(Enemy& enemy, float deltaTime, Player& player) override;
 };
@@ -37,11 +44,12 @@ class Enemy : public Entity {
 public:
     Vector2 chargeVel;
     float detectionRange, attackRange, aggroRange;
-    float wanderingTimer;
+    float wanderingTimer, attackChargeTimer;
 
     EnemyWandering wandering;
     EnemyChasing chase;
-    EnemyAttacking attack;
+    EnemyChargingAttack chargeAttack;
+    EnemyAttack attack;
 
     Enemy(Vector2 pos, float width, float height, float speed, float detectionRange, float aggroRange, float attackRange);
     
