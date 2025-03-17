@@ -53,6 +53,16 @@ Player::Player(Vector2 pos, float rad, float spd)
     SetState(&idle);
 }
 
+void Player::TakeDamage(float damage) {
+    if(current_state == &blocking) {
+            healthPoints = healthPoints;
+    } else if (current_state == &dodging) {
+        healthPoints -= damage * .5;
+    } else if (current_state == &idle || current_state == &moving ||current_state == &attacking) {
+        healthPoints -= damage;
+    }
+};
+
 
 // Definition of the PlayerIdle PlayerState Class' Enter function
 // Sets the Player's color to SKYBLUE (Please use your own colors for your implementation)

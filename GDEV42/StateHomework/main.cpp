@@ -2,7 +2,7 @@
 #include <raymath.h>
 
 #include "PlayerStateMachine.cpp"
-#include "EnemyStateMachien.cpp"
+#include "EnemyStateMachine.cpp"
 
 const float WINDOW_WIDTH = 1200;
 const float WINDOW_HEIGHT = 720;

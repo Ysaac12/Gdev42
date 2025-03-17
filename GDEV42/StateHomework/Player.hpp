@@ -118,6 +118,7 @@ public:
     // Accepts Vector2 pos (position), float rad (radius), float spd (speed)
     Player(Vector2 pos, float rad, float spd);
 
+    void TakeDamage(float damage);
     // Player Update Function
     // Also called every frame like the PlayerState update functions
     void Update(float delta_time);

@@ -18,6 +18,23 @@ void Enemy::Update(float deltaTime, Player& player) {
     if (current_state) {
         current_state->Update(*this, deltaTime, player);
     }
+
+
+    if (CheckAABBCircleCollision(player.position,position, {width, height}, player.radius)) {
+        if (damageTimer <= 0)
+        {
+         player.TakeDamage(10);
+         damageTimer = damageCD;
+        }
+        cout << "Collission" << endl;
+        cout << player.healthPoints << endl;
+    }
+
+    if (damageTimer >= 0)
+    {
+        damageTimer -= deltaTime;
+    }
+    
 }
 
 
@@ -32,6 +49,7 @@ void Enemy::SetState(EnemyState* new_state) {
     current_state = new_state;
     current_state ->Enter(*this);
 };
+
 
 Enemy::Enemy(Vector2 pos, float w, float h, float spd, float detectRad, float aggroRad, float attackRad) 
     : Entity(100, pos, w, h, 20.0f, spd), detectionRange(detectRad), aggroRange(aggroRad), attackRange(attackRad), wanderingTimer(3.0f) {
@@ -128,6 +146,8 @@ void EnemyAttack::Update(Enemy& enemy, float deltaTime, Player& player) {
         enemy.position = enemy.targetPosition;
         enemy.SetState(&enemy.wandering);
     };
+
+
 };
 
 

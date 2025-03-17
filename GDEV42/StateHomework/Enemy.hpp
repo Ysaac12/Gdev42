@@ -46,6 +46,8 @@ public:
     float detectionRange, attackRange, aggroRange;
     float wanderingTimer, attackChargeTimer;
     bool checkDirection;
+    float damageTimer = 0;
+    float damageCD = 2.0f;
 
     EnemyWandering wandering;
     EnemyChasing chase;
