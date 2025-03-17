@@ -25,9 +25,9 @@ void Enemy::Update(float deltaTime, Player& player) {
         {
          player.TakeDamage(10);
          damageTimer = damageCD;
+         cout << "Collission" << endl;
+         cout << player.healthPoints << endl;
         }
-        cout << "Collission" << endl;
-        cout << player.healthPoints << endl;
     }
 
     if (damageTimer >= 0)
@@ -39,10 +39,16 @@ void Enemy::Update(float deltaTime, Player& player) {
 
 
 void Enemy::Draw() {
-    DrawRectangle(position.x-20, position.y-20, width, height, color);
-    DrawCircleLinesV(position, attackRange, RED);
-    DrawCircleLinesV(position, aggroRange, ORANGE);
-    DrawCircleLinesV(position, detectionRange, YELLOW);
+    if (current_state != &dead && current_state != &win) {
+        DrawRectangle(position.x-20, position.y-20, width, height, color);
+        DrawCircleLinesV(position, attackRange, RED);
+        DrawCircleLinesV(position, aggroRange, ORANGE);
+        DrawCircleLinesV(position, detectionRange, YELLOW);
+    } 
+    if (current_state == &dead) {
+        ClearBackground(WHITE);
+        DrawText("CONGRATULATION! YOU WIN!!", 200, 360, 50, BLACK);
+    }
 };
 
 void Enemy::SetState(EnemyState* new_state) {
@@ -56,6 +62,25 @@ Enemy::Enemy(Vector2 pos, float w, float h, float spd, float detectRad, float ag
     SetState(&wandering); 
 }
 
+void EnemyDead::Enter (Enemy& enemy) {
+
+};
+
+void EnemyDead::Update(Enemy& enemy, float deltaTime, Player& player) {
+    
+};
+
+void EnemyWin::Enter (Enemy& enemy) {
+
+};
+
+void EnemyWin::Update(Enemy& enemy, float deltaTime, Player& player) {
+    
+};
+
+
+
+
 void EnemyWandering::Enter(Enemy& enemy) {
     enemy.color = LIME;
     enemy.wanderingTimer = 3.0f;
@@ -63,6 +88,10 @@ void EnemyWandering::Enter(Enemy& enemy) {
     float randYCoord = GetRandomValue(0,680);
     Vector2 tp = {randXCoord, randYCoord};
     enemy.targetPosition = tp;
+
+    if(enemy.healthPoints <= 0) {
+        enemy.SetState(&enemy.dead);
+    }
 }
 
 void EnemyWandering::Update(Enemy& enemy, float deltaTime, Player& player) {
@@ -88,6 +117,10 @@ void EnemyWandering::Update(Enemy& enemy, float deltaTime, Player& player) {
         enemy.SetState(&enemy.chase);
     }
 
+    if(player.healthPoints <= 0) {
+        enemy.SetState(&enemy.win);
+    }
+
 }
 
 void EnemyChasing::Enter(Enemy& enemy) {
@@ -106,6 +139,9 @@ void EnemyChasing::Update(Enemy& enemy, float deltaTime, Player& player) {
     if (CheckCircleCollision(enemy.position, enemy.attackRange, player.position, player.radius)) {
         enemy.SetState(&enemy.chargeAttack);
     }
+    if(player.healthPoints <= 0) {
+        enemy.SetState(&enemy.win);
+    }
 
 
 }
@@ -121,6 +157,10 @@ void EnemyChargingAttack::Update(Enemy& enemy, float deltaTime, Player& player) 
     if(enemy.attackChargeTimer <= 0) {
         enemy.SetState(&enemy.attack);
     };
+    
+    if(player.healthPoints <= 0) {
+        enemy.SetState(&enemy.win);
+    }
 }
 
 void EnemyAttack::Enter(Enemy& enemy) {
@@ -146,6 +186,10 @@ void EnemyAttack::Update(Enemy& enemy, float deltaTime, Player& player) {
         enemy.position = enemy.targetPosition;
         enemy.SetState(&enemy.wandering);
     };
+
+    if(player.healthPoints <= 0) {
+        enemy.SetState(&enemy.win);
+    }
 
 
 };

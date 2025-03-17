@@ -40,6 +40,17 @@ class EnemyAttack : public EnemyState {
     void Update(Enemy& enemy, float deltaTime, Player& player) override;
 };
 
+class EnemyDead : public EnemyState {
+    void Enter(Enemy& enemy) override;
+    void Update(Enemy& enemy, float deltaTime, Player& player) override;
+};
+
+class EnemyWin : public EnemyState {
+    void Enter(Enemy& enemy) override;
+    void Update(Enemy& enemy, float deltaTime, Player& player) override;
+};
+
+
 class Enemy : public Entity {
 public:
     Vector2 chargeVel;
@@ -47,12 +58,14 @@ public:
     float wanderingTimer, attackChargeTimer;
     bool checkDirection;
     float damageTimer = 0;
-    float damageCD = 2.0f;
+    float damageCD = 1.0f;
 
     EnemyWandering wandering;
     EnemyChasing chase;
     EnemyChargingAttack chargeAttack;
     EnemyAttack attack;
+    EnemyDead dead;
+    EnemyWin win;
 
     Enemy(Vector2 pos, float width, float height, float speed, float detectionRange, float aggroRange, float attackRange);
     

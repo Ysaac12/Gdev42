@@ -17,6 +17,7 @@
 #include <iostream>
 
 #include "Player.hpp"
+#include "Enemy.hpp"
 #include "Collision.cpp"
 
 using namespace std;
@@ -25,14 +26,29 @@ using namespace std;
 // Definition of the Player Class' Update function
 // Accepts float delta_time
 // Calls the Current State's Update function and passes the Player and delta_time
-void Player::Update(float delta_time) {
-    current_state->Update(*this, delta_time);
+void Player::Update(float delta_time, Enemy& enemy) {
+    if(current_state) {
+    current_state->Update(*this, delta_time, enemy);    
+    }
 }
 
 // Definition of the Player Class' Draw function
 // Draws the Circle representing the Player using the Player's position, radius, and color
 void Player::Draw() {
-    DrawCircleV(position, radius, color);
+
+    if(current_state != &win ){
+        DrawCircleV(position, radius, color);
+        DrawText(TextFormat("Player Healthpoint: %i", healthPoints), 20, 20, 20, WHITE);
+    }
+
+    if(current_state == &lose) {
+        ClearBackground(WHITE);
+        DrawText("Skill Issue -_-", 400, 350, 50, BLACK);
+    }
+
+    if(current_state == &attacking) {
+        DrawCircleLinesV (position, 30, RED);
+    }
 }
 
 
@@ -79,7 +95,7 @@ void PlayerMoving::Enter(Player& player) {
 
 // Definition of the PlayerIdle PlayerState Class' Update function
 // Whenever the User inputs any Directional Input (W, A, S, or D), the Player's SetState function is called and passes the moving State
-void PlayerIdle::Update(Player& player, float delta_time) {
+void PlayerIdle::Update(Player& player, float delta_time, Enemy& enemy) {
 
     if(IsMouseButtonPressed(MOUSE_LEFT_BUTTON)) {
         player.SetState(&player.attacking);
@@ -93,11 +109,15 @@ void PlayerIdle::Update(Player& player, float delta_time) {
     if (IsKeyDown(KEY_W) || IsKeyDown(KEY_A) || IsKeyDown(KEY_S) || IsKeyDown(KEY_D)) {
         player.SetState(&player.moving);
     }
+
+    if(player.healthPoints <= 0) {
+        player.SetState(&player.lose);
+    }
 }
 
 // Definition of the PlayerMoving PlayerState Class' Update function
 // Whenever the Player's velocity is 0 (Player is no longer moving), the Player's SetState function is called and passes the idle State
-void PlayerMoving::Update(Player& player, float delta_time) {
+void PlayerMoving::Update(Player& player, float delta_time, Enemy& enemy) {
     player.velocity = Vector2Zero();
     player.direction = Vector2Zero();
 
@@ -144,12 +164,49 @@ void PlayerAttacking::Enter(Player& player) {
     player.attackCD = 2.0f;
 }
 
-void PlayerAttacking::Update(Player& player, float deltaTime) {
+void PlayerAttacking::Update(Player& player, float deltaTime, Enemy& enemy) {
     player.attackCD -= deltaTime;  
+    float attackRangeRad = 40;
+
+    if(CheckAABBCircleCollision(player.position, enemy.position, {enemy.width, enemy.height}, attackRangeRad)) {
+        player.SetState(&player.damage);
+        // cout << "DAMAGE COLLISION DETECTED" << endl;
+    }
+
+    if(enemy.healthPoints == 0) {
+        player.SetState(&player.win);
+    }
+    
 
     if(player.attackCD <= 0) {
         player.SetState(&player.idle); 
     }
+}
+
+void PlayerWin::Enter(Player& player) {
+
+}
+
+void PlayerWin::Update(Player& player, float deltaTime, Enemy& enemy ) {
+
+}
+
+void PlayerLose::Enter(Player& player) {
+
+}
+
+void PlayerLose::Update(Player& player, float deltaTime, Enemy& enemy ) {
+
+}
+
+void PlayerDamage::Enter(Player& player) {
+    player.attackDamage = 50;
+}
+
+void PlayerDamage::Update(Player& player, float deltaTime, Enemy& enemy) {
+    enemy.healthPoints -= player.attackDamage;
+    cout << enemy.healthPoints << endl;
+    player.SetState(&player.idle);
 }
 
 void PlayerDodging::Enter(Player& player) {
@@ -161,7 +218,7 @@ void PlayerDodging::Enter(Player& player) {
     player.dodgeVel = Vector2Scale(player.direction, player.dashDistance / player.dodgeTime);
 }
 
-void PlayerDodging::Update(Player& player, float deltaTime) {
+void PlayerDodging::Update(Player& player, float deltaTime, Enemy& enemy) {
     if (player.dodgeTimer < player.dodgeTime) {
         player.position = Vector2Add(player.position, Vector2Scale(player.dodgeVel, deltaTime));
         player.dodgeTimer += deltaTime;
@@ -174,7 +231,7 @@ void PlayerBlocking::Enter(Player& player) {
     player.color = DARKPURPLE;
 }
 
-void PlayerBlocking::Update(Player& player, float deltaTime) {
+void PlayerBlocking::Update(Player& player, float deltaTime, Enemy& enemy) {
     if(IsMouseButtonReleased(MOUSE_RIGHT_BUTTON)) {
         player.SetState(&player.idle);
     }

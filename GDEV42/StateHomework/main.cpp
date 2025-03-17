@@ -21,8 +21,8 @@ int main() {
     while(!WindowShouldClose()) {
         float deltaTime = GetFrameTime();
 
-        player->Update(deltaTime);
-        enemy->Update(deltaTime, * player);
+        player->Update(deltaTime, *enemy);
+        enemy->Update(deltaTime, *player);
         
 
         BeginDrawing();
@@ -35,5 +35,6 @@ int main() {
     CloseWindow();
     delete player;
     delete enemy;
+
     return 0;
 }

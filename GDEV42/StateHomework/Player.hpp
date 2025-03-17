@@ -43,7 +43,7 @@ class PlayerState {
 public:
     virtual ~PlayerState() {}
     virtual void Enter(Player& player) = 0;
-    virtual void Update(Player& player, float delta_time) = 0;
+    virtual void Update(Player& player, float delta_time, Enemy& enemy) = 0;
 };
 
 
@@ -56,7 +56,7 @@ The two functions are just declarations of the two pure virtual functions of the
 class PlayerIdle : public PlayerState {
 public:
     void Enter(Player& player);
-    void Update(Player& player, float delta_time);
+    void Update(Player& player, float delta_time, Enemy& enemy);
 };
 
 
@@ -69,27 +69,46 @@ The two functions are just declarations of the two pure virtual functions of the
 class PlayerMoving : public PlayerState {
 public:
     void Enter(Player& player);
-    void Update(Player& player, float delta_time);
+    void Update(Player& player, float delta_time, Enemy& enemy);
 };
 
 class PlayerAttacking : public PlayerState {
     public:
         void Enter(Player& player);
-        void Update(Player& player, float delta_time);
+        void Update(Player& player, float delta_time, Enemy& enemy);
+    };
+
+class PlayerDamage : public PlayerState {
+    public:
+        void Enter(Player& player);
+        void Update(Player& player, float delta_time, Enemy& enemy);
     };
 
     
 class PlayerDodging : public PlayerState {
     public:
         void Enter(Player& player);
-        void Update(Player& player, float delta_time);
+        void Update(Player& player, float delta_time, Enemy& enemy);
     };
         
 class PlayerBlocking : public PlayerState {
     public:
         void Enter(Player& player);
-        void Update(Player& player, float delta_time);
+        void Update(Player& player, float delta_time, Enemy& enemy);
     };
+
+class PlayerWin : public PlayerState {
+    public:
+        void Enter(Player& player);
+        void Update(Player& player, float delta_time, Enemy& enemy);
+    };
+
+class PlayerLose : public PlayerState {
+    public:
+        void Enter(Player& player);
+        void Update(Player& player, float deltaTime, Enemy& enemy);
+};
+
         
 
 
@@ -105,6 +124,7 @@ public:
     float attackCD;
     float dodgeTimer;
     float dodgeTime;
+    int attackDamage;
 
     // Declarations of all the states the player can be in
     // When Making new States, declare them here
@@ -113,6 +133,9 @@ public:
     PlayerAttacking attacking;
     PlayerDodging dodging;
     PlayerBlocking blocking;
+    PlayerDamage damage;
+    PlayerWin win;
+    PlayerLose lose;
 
     // Player Constructor
     // Accepts Vector2 pos (position), float rad (radius), float spd (speed)
@@ -121,7 +144,7 @@ public:
     void TakeDamage(float damage);
     // Player Update Function
     // Also called every frame like the PlayerState update functions
-    void Update(float delta_time);
+    void Update(float delta_time, Enemy& enemy);
 
     // Player Draw Function
     // Called Every Frame during the Draw phase 
