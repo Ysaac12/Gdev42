@@ -15,7 +15,7 @@ int main() {
     Enemy* enemy = new Enemy(Vector2 {WINDOW_WIDTH/2, WINDOW_HEIGHT/2}, 40, 40, 100, 200, 360, 120);
 
 
-    InitWindow(WINDOW_WIDTH,WINDOW_HEIGHT, "cool world");
+    InitWindow(WINDOW_WIDTH,WINDOW_HEIGHT, "MesaReyesRuiz_Homework3");
     SetTargetFPS(FPS);
 
     while(!WindowShouldClose()) {
