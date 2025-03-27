@@ -25,6 +25,7 @@ Texture2D tileset;
 vector<Tile> tileList;
 int tilemap[100][100]; 
 int mapWidth, mapHeight;
+Vector2 playerPos, enemyPos;
 
 void LoadTilemapData(const char* filename) {
     ifstream file(filename);
@@ -55,6 +56,12 @@ void LoadTilemapData(const char* filename) {
         cout << endl;
     }
 
+    file >> playerPos.x >> playerPos.y;
+    cout << "Player position: " << playerPos.x << " " << playerPos.y << endl;
+
+    file >> enemyPos.x >> enemyPos.y;
+    cout << "Enemy position: " << enemyPos.x << " " << enemyPos.y << endl;
+
     file.close();
 }
 
@@ -73,28 +80,44 @@ void DrawTilemap() {
 }
 
 int main() {
-    Player* player = new Player(Vector2 {100,100}, 10, 200);
-    Enemy* enemy = new Enemy(Vector2 {WINDOW_WIDTH/2, WINDOW_HEIGHT/2}, 40, 40, 100, 200, 360, 120);
+
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "MesaReyesRuiz_Homework4");
     SetTargetFPS(FPS);
 
     LoadTilemapData("TileInfo.txt");
 
+    Player* player = new Player(playerPos, 10, 200);
+    Enemy* enemy = new Enemy(enemyPos, 40, 40, 100, 200, 360, 120);
+
+    Camera2D camera = {0};
+    camera.rotation = 0.0f;
+    camera.zoom = 2.0f;
+    camera.offset = {WINDOW_WIDTH/2, WINDOW_HEIGHT/2};
+    camera.target = player->position;
+
     while (!WindowShouldClose()) {
 
         float deltaTime = GetFrameTime();
+        
+
+        camera.target = player->position;
 
         player->Update(deltaTime, *enemy);
         enemy->Update(deltaTime, *player);
         
+
         BeginDrawing();
+
+        BeginMode2D(camera);
         ClearBackground(RAYWHITE);
         DrawTilemap();
-
         player->Draw();
         enemy->Draw();
 
+
+        EndMode2D();
+        DrawText(TextFormat("Player Healthpoint: %i", player->healthPoints), 20, 20, 20, WHITE);
         EndDrawing();
     }
 

@@ -38,7 +38,6 @@ void Player::Draw() {
 
     if(current_state != &win ){
         DrawCircleV(position, radius, color);
-        DrawText(TextFormat("Player Healthpoint: %i", healthPoints), 20, 20, 20, WHITE);
     }
 
     if(current_state == &lose) {
