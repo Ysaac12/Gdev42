@@ -27,6 +27,28 @@ int tilemap[100][100];
 int mapWidth, mapHeight;
 Vector2 playerPos, enemyPos;
 
+
+bool CheckTileCollision(Vector2 playerPos, float radius) {
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int tileIndex = tilemap[y][x];
+
+            if (tileIndex < 0 || tileIndex >= TILE_COUNT) continue;
+
+            if (tileList[tileIndex].hasCollision) {
+                Rectangle tileRect = { x * 16.0f, y * 16.0f, 16, 16 };
+
+                if (CheckCollisionCircleRec(playerPos, radius, tileRect)) {
+                    cout << "wall collision" << endl;
+                    return true; // Collision detected
+                }
+            }
+        }
+    }
+    return false;
+}
+
+
 void LoadTilemapData(const char* filename) {
     ifstream file(filename);
 
@@ -97,7 +119,7 @@ int main() {
     camera.target = player->position;
 
     while (!WindowShouldClose()) {
-
+        CheckTileCollision(player->position, player->radius);
         float deltaTime = GetFrameTime();
         
 
