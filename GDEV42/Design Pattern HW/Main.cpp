@@ -8,6 +8,7 @@
 
 #include "PlayerStateMachine.cpp"
 #include "EnemyStateMachine.cpp"
+#include "TileMap.cpp"
 
 const int WINDOW_WIDTH(1280);
 const int WINDOW_HEIGHT(720);
@@ -60,6 +61,7 @@ int main() {
     std::vector<Enemy> enemies;
     Enemy enemy01({500,400}, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
     Enemy enemy02({200,100}, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
+    TileMap Map;
 
     bool game_ongoing = true;
     bool enemy_lose = false;
@@ -69,6 +71,8 @@ int main() {
 
     InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "State Machine");
     SetTargetFPS(FPS);
+
+    Map.LoadTilemapData("TileInfo.txt");
 
     Camera2D camera_view = {0};
     camera_view.target = player.position;
@@ -110,6 +114,7 @@ int main() {
         BeginDrawing();
         BeginMode2D(camera_view);
         ClearBackground(BLACK);
+        Map.DrawTilemap();
         if (game_ongoing) {
             player.Draw();
             for (size_t i = 0; i < enemies.size(); i++) {
