@@ -54,3 +54,23 @@ void TileMap::DrawTilemap() {
         }
     }
 }
+
+bool TileMap::CheckTileCollision(Entity* entity){
+    for (int y = 0; y < mapHeight; y++) {
+        for (int x = 0; x < mapWidth; x++) {
+            int tileIndex = tilemap[y][x];
+
+            if (tileIndex < 0 || tileIndex >= TILE_COUNT) continue;
+
+            if (tileList[tileIndex].hasCollision) {
+                Rectangle tileRect = { x * 16.0f, y * 16.0f, 16, 16 };
+
+                if (CheckCollisionCircleRec(entity->position, entity->radius, tileRect)) {
+                    cout << "wall collision" << endl;
+                    return true; // Collision detected
+                }
+            }
+        }
+    }
+    return false;
+}

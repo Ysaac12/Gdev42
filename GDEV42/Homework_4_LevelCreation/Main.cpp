@@ -62,6 +62,7 @@ int main() {
     Enemy enemy01({500,400}, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
     Enemy enemy02({200,100}, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
     TileMap Map;
+    player.setTileMap(&Map);
 
     bool game_ongoing = true;
     bool enemy_lose = false;
@@ -81,7 +82,6 @@ int main() {
 
     while (!WindowShouldClose()) {
         float delta_time = GetFrameTime();
-
 
         if (game_ongoing) {
             enemy_lose = true;
@@ -105,7 +105,7 @@ int main() {
 
             
 
-            std::cout << player.health << std::endl;
+            // std::cout << player.health << std::endl;
         }
         
         MoveCamera(&camera_view, &player, delta_time);

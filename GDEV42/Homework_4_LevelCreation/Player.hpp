@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "Entity.hpp"
+#include "TileMap.hpp"
 
 class Player;
 
@@ -58,6 +59,7 @@ public:
 // Base Player Class
 class Player : public Entity {
 public:
+    TileMap*  tile_map;
     Vector2 velocity;
     Vector2 acceleration;
     float speed;
@@ -65,6 +67,9 @@ public:
     bool in_attacking;
     float attack_radius;
 
+    void setTileMap(TileMap* map) {
+        tile_map = map;
+    }
     Player(Vector2 pos, float rad, float spd, int hp);
 
     void Update(float delta_time);

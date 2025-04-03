@@ -6,6 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include "Entity.hpp"
 
 using namespace std;
 
@@ -16,7 +17,7 @@ struct Tile {
     bool hasCollision;
 };
 
-class TileMap {
+class TileMap : public Entity{
 public: 
     Texture2D tileset;
     vector<Tile> tileList;
@@ -27,6 +28,7 @@ public:
 
     void LoadTilemapData(const char* filename);
     void DrawTilemap();
+    bool CheckTileCollision(Entity* entity);
 
 };
 

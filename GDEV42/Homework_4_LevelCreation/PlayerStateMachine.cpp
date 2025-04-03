@@ -72,6 +72,7 @@ void PlayerMoving::Update(Player& player, float delta_time) {
 
     if (IsKeyDown(KEY_W)) {
         player.velocity.y -= 1.0f;
+        
     }
     if (IsKeyDown(KEY_A)) {
         player.velocity.x -= 1.0f;
@@ -84,7 +85,17 @@ void PlayerMoving::Update(Player& player, float delta_time) {
     }
 
     player.velocity = Vector2Scale(Vector2Normalize(player.velocity), player.speed * delta_time);
-    player.position = Vector2Add(player.position, player.velocity);
+    // player.position = Vector2Add(player.position, player.velocity);
+    Vector2 new_position = Vector2Add(player.position, player.velocity);
+
+    // Make a temporary entity to check future collision
+    Player temp_player = player;
+    temp_player.position = new_position;
+
+    if (player.tile_map && !player.tile_map->CheckTileCollision(&temp_player)) {
+        player.position = new_position;
+    }
+
 
     if (player.invulnerable_timer > 0.0f) {
         player.invulnerable_timer -= delta_time;
