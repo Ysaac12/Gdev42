@@ -24,7 +24,7 @@ public:
     int tilemap[100][100]; 
     int mapWidth, mapHeight;
     int TILE_COUNT;
-    Vector2 playerPos, enemyPos;
+    Vector2 playerPos, enemyPos, enemyPos2, enemyPos3;
 
     void LoadTilemapData(const char* filename);
     void DrawTilemap();

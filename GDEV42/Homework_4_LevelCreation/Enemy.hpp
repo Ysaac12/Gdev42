@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "Entity.hpp"
+#include "TileMap.hpp"
 
 class Enemy;
 
@@ -50,6 +51,7 @@ public:
 
 class Enemy : public Entity {
 public:
+    TileMap* tile_map;
     float rotation;
     Color color;
 
@@ -69,6 +71,10 @@ public:
     EnemyChasing chasing;
     EnemyReady ready;
     EnemyAttacking attacking;
+
+    void setTileMap(TileMap* map) {
+        tile_map = map;
+    } 
 
     Enemy(Vector2 pos, float spd, float rad, float d_radius, float a_radius, float r_radius, int hp);
 

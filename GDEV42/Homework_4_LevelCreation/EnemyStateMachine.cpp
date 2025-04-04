@@ -83,7 +83,21 @@ void EnemyWandering::Update(Enemy& enemy, float delta_time) {
     }
 
     enemy.velocity = Vector2Scale(move_direction, 50.0f);
-    enemy.position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
+    Vector2 new_position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
+
+    Enemy temp_enemy = enemy;
+    temp_enemy.position = new_position;
+
+    if (enemy.tile_map && !enemy.tile_map->CheckTileCollision(&temp_enemy)) {
+        enemy.position = new_position;
+    } else {
+        // Pick a new random direction if collision happens
+        move_direction.x = GetRandomValue(-100, 100) / 100.0f;
+        move_direction.y = GetRandomValue(-100, 100) / 100.0f;
+        move_direction = Vector2Normalize(move_direction);
+        change_direction_cooldown = GetRandomValue(1, 3);  // reset cooldown
+    }
+    
 
     if (enemy.invulnerable_timer > 0.0f) {
         enemy.invulnerable_timer -= delta_time;
@@ -102,14 +116,22 @@ void EnemyWandering::HandleCollision(Enemy& enemy, Entity* other_entity) {
 }
 
 void EnemyChasing::Update(Enemy& enemy, float delta_time) {
-    enemy.velocity = Vector2Subtract(enemy.entity_following->position, enemy.position);
-    enemy.velocity = Vector2Normalize(enemy.velocity);
-
     enemy.rotation = Vector2Angle({0.0f, -1.0f}, enemy.velocity) * 360 / PI;
 
+    enemy.velocity = Vector2Subtract(enemy.entity_following->position, enemy.position);
+    enemy.velocity = Vector2Normalize(enemy.velocity);
     enemy.velocity = Vector2Scale(enemy.velocity, 100.0f);
-    enemy.position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
-
+    
+    Vector2 new_position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
+    Enemy temp_enemy = enemy;
+    temp_enemy.position = new_position;
+    
+    if (enemy.tile_map && !enemy.tile_map->CheckTileCollision(&temp_enemy)) {
+        enemy.position = new_position;
+    } else {
+        enemy.SetState(&enemy.wandering);
+    }
+    
     if (enemy.invulnerable_timer > 0.0f) {
         enemy.invulnerable_timer -= delta_time;
     }
@@ -157,12 +179,23 @@ void EnemyReady::HandleCollision(Enemy& enemy, Entity* other_entity) {
 void EnemyAttacking::Update(Enemy& enemy, float delta_time) {
     enemy.velocity = Vector2Add(enemy.velocity, enemy.acceleration);
     enemy.velocity = Vector2Subtract(enemy.velocity, Vector2Scale(enemy.velocity, 5.0f * delta_time));
-    enemy.position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
 
-    if(Vector2Length(enemy.velocity) < 50.0f) {
+    Vector2 new_position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
+    Enemy temp_enemy = enemy;
+    temp_enemy.position = new_position;
+
+    if (enemy.tile_map && !enemy.tile_map->CheckTileCollision(&temp_enemy)) {
+        enemy.position = new_position;
+
+        if (Vector2Length(enemy.velocity) < 50.0f) {
+            enemy.velocity = Vector2Zero();
+            enemy.SetState(&enemy.wandering);
+        }
+    } else {
         enemy.velocity = Vector2Zero();
         enemy.SetState(&enemy.wandering);
     }
+    
 
     enemy.acceleration = Vector2Zero();
 

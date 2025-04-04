@@ -13,7 +13,7 @@ void TileMap::LoadTilemapData(const char* filename) {
     file >> TILE_COUNT;
     tileList.resize(TILE_COUNT);
 
-    cout << "Tile count: " << TILE_COUNT << endl;
+    // cout << "Tile count: " << TILE_COUNT << endl;
 
     // Read tile positions
     for (int i = 0; i < TILE_COUNT; i++) {
@@ -37,6 +37,10 @@ void TileMap::LoadTilemapData(const char* filename) {
 
     file >> enemyPos.x >> enemyPos.y;
     cout << "Enemy position: " << enemyPos.x << " " << enemyPos.y << endl;
+    file >> enemyPos2.x >> enemyPos2.y;
+    cout << "Enemy position2: " << enemyPos2.x << " " << enemyPos2.y << endl;
+    file >> enemyPos3.x >> enemyPos3.y;
+    cout << "Enemy position3: " << enemyPos3.x << " " << enemyPos3.y << endl;
 
     file.close();
 }
@@ -66,8 +70,8 @@ bool TileMap::CheckTileCollision(Entity* entity){
                 Rectangle tileRect = { x * 16.0f, y * 16.0f, 16, 16 };
 
                 if (CheckCollisionCircleRec(entity->position, entity->radius, tileRect)) {
-                    cout << "wall collision" << endl;
-                    return true; // Collision detected
+                    // cout << "wall collision" << endl;
+                    return true; 
                 }
             }
         }

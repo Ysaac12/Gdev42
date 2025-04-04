@@ -14,6 +14,9 @@ const int WINDOW_WIDTH(1280);
 const int WINDOW_HEIGHT(720);
 const float FPS(60.0f);
 
+using namespace std;
+
+
 Rectangle camera_window = {(WINDOW_WIDTH / 2) - 150, (WINDOW_HEIGHT / 2) - 150, 300.0f, 300.0f};
 float cam_drift = 0.5f;
 float cam_zoom;
@@ -57,23 +60,31 @@ void MoveCamera(Camera2D* cam, Player* player, float delta_time) {
 }
 
 int main() {
-    Player player({WINDOW_WIDTH/2, WINDOW_HEIGHT/2}, 15.0f, 150.0f, 5);
-    std::vector<Enemy> enemies;
-    Enemy enemy01({500,400}, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
-    Enemy enemy02({200,100}, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
+
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "MesaReyesRuiz_Homework4");
+    SetTargetFPS(FPS);
+
     TileMap Map;
+    Map.LoadTilemapData("TileInfo.txt");
+    Player player( Map.playerPos, 15.0f, 150.0f, 5);
+    vector<Enemy> enemies;
+    Enemy enemy01(Map.enemyPos, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
+    Enemy enemy02(Map.enemyPos2, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
+    Enemy enemy03(Map.enemyPos3, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
     player.setTileMap(&Map);
+    
+    enemy01.setTileMap(&Map);
+    enemy02.setTileMap(&Map);
+    enemy03.setTileMap(&Map);
 
     bool game_ongoing = true;
     bool enemy_lose = false;
 
     enemies.push_back(enemy01);
     enemies.push_back(enemy02);
+    enemies.push_back(enemy03);
 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "State Machine");
-    SetTargetFPS(FPS);
-
-    Map.LoadTilemapData("TileInfo.txt");
+    camera_window = {player.position.x - 150, player.position.y - 150, 300.0f, 300.0f};
 
     Camera2D camera_view = {0};
     camera_view.target = player.position;
@@ -125,13 +136,15 @@ int main() {
         }
         EndMode2D();
         if (game_ongoing) {
-            DrawText(std::to_string(player.health).c_str(), 10, 10, 50, WHITE);
+            DrawText(to_string(player.health).c_str(), 10, 10, 50, WHITE);
         }
         else {
             if (enemy_lose) {
+                ClearBackground(BLACK);
                 DrawText("YOU WIN", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 25, 100, WHITE);
             }
             else if (!enemy_lose) {
+                ClearBackground(BLACK);
                 DrawText("YOU LOSE", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 25, 100, WHITE);
             }
             

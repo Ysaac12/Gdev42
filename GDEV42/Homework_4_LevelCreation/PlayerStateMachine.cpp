@@ -190,9 +190,19 @@ void PlayerDodging::Enter(Player& player) {
 void PlayerDodging::Update(Player& player, float delta_time) {
     player.velocity = Vector2Add(player.velocity, player.acceleration);
     player.velocity = Vector2Subtract(player.velocity, Vector2Scale(player.velocity, 5.0f * delta_time));
-    player.position = Vector2Add(player.position, Vector2Scale(player.velocity, delta_time));
 
-    if(Vector2Length(player.velocity) < 50.0f) {
+    Vector2 new_position = Vector2Add(player.position, Vector2Scale(player.velocity, delta_time));
+    Player temp_player = player;
+    temp_player.position = new_position;
+
+    if (player.tile_map && !player.tile_map->CheckTileCollision(&temp_player)) {
+        player.position = new_position;
+
+        if (Vector2Length(player.velocity) < 50.0f) {
+            player.velocity = Vector2Zero();
+            player.SetState(&player.idle);
+        }
+    } else {
         player.velocity = Vector2Zero();
         player.SetState(&player.idle);
     }
