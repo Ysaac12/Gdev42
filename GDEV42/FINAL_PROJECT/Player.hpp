@@ -1,0 +1,109 @@
+#ifndef PLAYER
+#define PLAYER
+
+#define GAME_SCENE_SPRITE_SLIME "Assets/Sprites/slime.png"
+#define GAME_SCENE_SPRITE_BEE "Assets/Sprites/bee.png"
+#define GAME_SCENE_SPRITE_GHOST "Assets/Sprites/ghost.png"
+#define GAME_SCENE_SPRITE_EYEBALL"Assets/Sprites/eyeball.png"
+#define GAME_SCENE_BACKGROUND "Assets/Scene/background.png"
+#define GAME_SCENE_EYEBALL_PROJECTILE "Assets/Texture/orb.png"
+#define GAME_SCENE_HEART "Assets/Texture/heartscreen.png"
+#define GAME_SCENE_MUSIC "Assets/Audio/Music/symphony.ogg"
+#define GAME_SCENE_COLLISION_SFX "Assets/Audio/Sounds/collision.wav"
+
+#include <raylib.h>
+#include <raymath.h>
+#include "Entity.hpp"
+#include "TileMap.hpp"
+
+class Player;
+
+// Base Player State
+// All Player States inherit this interface
+class PlayerState {
+public:
+    virtual ~PlayerState() {}
+    virtual void Enter(Player& player) = 0;
+    virtual void Update(Player& player, float delta_time) = 0;
+    virtual void HandleCollision(Player& player, Entity* other_entity) = 0;
+};
+
+class PlayerIdle : public PlayerState {
+public:
+    void Enter(Player& player);
+    void Update(Player& player, float delta_time);
+    void HandleCollision(Player& player, Entity* other_entity);
+};
+
+class PlayerMoving : public PlayerState {
+public:
+    void Enter(Player& player);
+    void Update(Player& player, float delta_time);
+    void HandleCollision(Player& player, Entity* other_entity);
+};
+
+class PlayerBlocking : public PlayerState {
+public:
+    void Enter(Player& player);
+    void Update(Player& player, float delta_time);
+    void HandleCollision(Player& player, Entity* other_entity);
+};
+
+class PlayerAttacking : public PlayerState {
+public:
+    float active_time;
+    void Enter(Player& player);
+    void Update(Player& player, float delta_time);
+    void HandleCollision(Player& player, Entity* other_entity);
+};
+
+class PlayerDodging : public PlayerState {
+public:
+    Vector2 dodge_direction;
+    void Enter(Player& player);
+    void Update(Player& player, float delta_time);
+    void HandleCollision(Player& player, Entity* other_entity);
+};
+
+
+// Base Player Class
+class Player : public Entity {
+public:
+    TileMap*  tile_map;
+    Texture2D playerSprite;
+    Rectangle playerFrameRect;
+    Rectangle playerDR;
+    int currentFrame;
+    float frameWidth, frameHeight;
+
+    Vector2 velocity;
+    Vector2 acceleration;
+    float speed;
+    bool in_attacking;
+    float attack_radius;
+
+    void setTileMap(TileMap* map) {
+        tile_map = map;
+    }
+    Player(Vector2 pos, float rad, float spd, int hp);
+
+    void Update(float delta_time);
+
+    void Draw();
+
+    void SetState(PlayerState* new_state);
+
+    void HandleCollision(Entity* other_entity);
+
+    PlayerIdle idle;
+    PlayerMoving moving;
+    PlayerBlocking blocking;
+    PlayerAttacking attacking;
+    PlayerDodging dodging;
+
+private:
+    PlayerState* current_state;
+};
+
+
+#endif
