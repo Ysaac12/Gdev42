@@ -6,11 +6,40 @@
 
 
 void Enemy::Update(float delta_time) {
+    animationTimer += delta_time;
+
+    if(animationTimer >= frameSpeed && maxFrames > 1) {
+        animationTimer = 0.0f;
+
+        if(animation_state == animation_type::WANDERING) {
+            currentFrame = (currentFrame + 1) % maxFrames;
+        }
+    }
+
+
     current_state->Update(*this, delta_time);
 }
 
 void Enemy::Draw() {
-    DrawRectanglePro({position.x, position.y, 30.0f, 30.0f}, {15.0f, 15.0f}, rotation, color);
+    Rectangle src = {
+        frameWidth * currentFrame,
+        frameHeight * direction,
+        frameWidth,
+        frameHeight,
+    };
+
+    Rectangle dst = {
+        position.x,
+        position.y,
+        frameWidth,
+        frameHeight
+    };
+
+    Vector2 origin = { frameWidth /2, frameHeight /2};
+
+    DrawTexturePro(beeSprite, src, dst, origin, 0.0f, WHITE);
+
+    // DrawRectanglePro({position.x, position.y, 30.0f, 30.0f}, {15.0f, 15.0f}, rotation, color);
     DrawCircleLines(position.x, position.y, ready_attack_radius, DARKBLUE);
     DrawCircleLines(position.x, position.y, detection_radius, VIOLET);
     DrawCircleLines(position.x, position.y, aggro_radius, BLUE);
@@ -35,6 +64,15 @@ Enemy::Enemy(Vector2 pos, float spd, float rad, float d_radius, float a_radius, 
     health = hp;
     rotation = 0.0f;
     active = true;
+
+    beeSprite = LoadTexture(GAME_SCENE_SPRITE_BEE);
+    frameWidth = (float) (beeSprite.width/ 6);
+    frameHeight = (float) (beeSprite.height /4);
+    currentFrame = 0;
+    maxFrames = 6;
+    frameSpeed = .3f;
+    direction = 0;
+
     SetState(&wandering);
 }
 
@@ -45,10 +83,11 @@ void EnemyWandering::Enter(Enemy& enemy) {
     move_direction.y = GetRandomValue(-100.0f, 100.0f) / 100.0f;
 
     move_direction = Vector2Normalize(move_direction);
-
     enemy.entity_following = nullptr;
-
     enemy.rotation = 0.0f;
+
+    enemy.currentFrame = 0;
+    enemy.maxFrames = 3;
 }
 
 void EnemyChasing::Enter(Enemy& enemy) {
@@ -58,6 +97,8 @@ void EnemyChasing::Enter(Enemy& enemy) {
 void EnemyReady::Enter(Enemy& enemy) {
     enemy.color = ORANGE;
     ready_timer = 1.0f;
+    enemy.currentFrame = 3;
+    enemy.maxFrames = 1;
 }
 
 void EnemyAttacking::Enter(Enemy& enemy) {
@@ -65,6 +106,9 @@ void EnemyAttacking::Enter(Enemy& enemy) {
 
     attack_direction = Vector2Scale(Vector2Normalize(Vector2Subtract(enemy.entity_following->position, enemy.position)), 1000.0f);
     enemy.acceleration = attack_direction;
+
+    enemy.currentFrame = 4;
+    enemy.maxFrames = 1;
 }
 
 
@@ -76,6 +120,7 @@ void EnemyWandering::Update(Enemy& enemy, float delta_time) {
         move_direction.y = GetRandomValue(-100.0f, 100.0f) / 100.0f;
 
         move_direction = Vector2Normalize(move_direction);
+        
         change_direction_cooldown = GetRandomValue(1, 3);
     }
     else {
@@ -83,6 +128,23 @@ void EnemyWandering::Update(Enemy& enemy, float delta_time) {
     }
 
     enemy.velocity = Vector2Scale(move_direction, 50.0f);
+
+    if (abs(enemy.velocity.x) > abs(enemy.velocity.y)){
+        if (enemy.velocity.x < 0) {
+            enemy.direction = 1;    // LEFT
+        } 
+        if (enemy.velocity.x > 0) {
+            enemy.direction = 3;    //RIGHT
+        }
+    } else {
+        if(enemy.velocity.y < 0) {
+            enemy.direction = 0;    // UP
+        }
+        if(enemy.velocity.y > 0) {
+            enemy.direction = 2;    // DOWN
+        }
+    }
+
     Vector2 new_position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
 
     Enemy temp_enemy = enemy;
@@ -121,6 +183,22 @@ void EnemyChasing::Update(Enemy& enemy, float delta_time) {
     enemy.velocity = Vector2Subtract(enemy.entity_following->position, enemy.position);
     enemy.velocity = Vector2Normalize(enemy.velocity);
     enemy.velocity = Vector2Scale(enemy.velocity, 100.0f);
+
+    if (abs(enemy.velocity.x) > abs(enemy.velocity.y)){
+        if (enemy.velocity.x < 0) {
+            enemy.direction = 1;    // LEFT
+        } 
+        if (enemy.velocity.x > 0) {
+            enemy.direction = 3;    //RIGHT
+        }
+    } else {
+        if(enemy.velocity.y < 0) {
+            enemy.direction = 0;    // UP
+        }
+        if(enemy.velocity.y > 0) {
+            enemy.direction = 2;    // DOWN
+        }
+    }
     
     Vector2 new_position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
     Enemy temp_enemy = enemy;
@@ -179,6 +257,22 @@ void EnemyReady::HandleCollision(Enemy& enemy, Entity* other_entity) {
 void EnemyAttacking::Update(Enemy& enemy, float delta_time) {
     enemy.velocity = Vector2Add(enemy.velocity, enemy.acceleration);
     enemy.velocity = Vector2Subtract(enemy.velocity, Vector2Scale(enemy.velocity, 5.0f * delta_time));
+
+    if (abs(enemy.velocity.x) > abs(enemy.velocity.y)){
+        if (enemy.velocity.x < 0) {
+            enemy.direction = 1;    // LEFT
+        } 
+        if (enemy.velocity.x > 0) {
+            enemy.direction = 3;    //RIGHT
+        }
+    } else {
+        if(enemy.velocity.y < 0) {
+            enemy.direction = 0;    // UP
+        }
+        if(enemy.velocity.y > 0) {
+            enemy.direction = 2;    // DOWN
+        }
+    }
 
     Vector2 new_position = Vector2Add(enemy.position, Vector2Scale(enemy.velocity, delta_time));
     Enemy temp_enemy = enemy;

@@ -1,11 +1,7 @@
 #ifndef PLAYER
 #define PLAYER
 
-#define GAME_SCENE_SPRITE_SLIME "Assets/Sprites/slime.png"
-#define GAME_SCENE_SPRITE_BEE "Assets/Sprites/bee.png"
-#define GAME_SCENE_SPRITE_GHOST "Assets/Sprites/ghost.png"
 #define GAME_SCENE_SPRITE_EYEBALL "/Users/ysaacmesa/Gdev42/GDEV42/FINAL_PROJECT/Assets/Sprites/eyeball.png"
-#define GAME_SCENE_BACKGROUND "Assets/Scene/background.png"
 #define GAME_SCENE_EYEBALL_PROJECTILE "Assets/Texture/orb.png"
 #define GAME_SCENE_HEART "Assets/Texture/heartscreen.png"
 #define GAME_SCENE_MUSIC "Assets/Audio/Music/symphony.ogg"
@@ -69,14 +65,21 @@ public:
 // Base Player Class
 class Player : public Entity {
 public:
+    enum class Animation_type {
+        IDLE, 
+        MOVING
+    };
+
+    Animation_type animation_state;
+
     TileMap*  tile_map;
+
     Texture2D playerSprite;
     Rectangle playerFrameRect;
     Rectangle playerDR;
     int currentFrame;
     float frameWidth, frameHeight;
-
-    int direction;                // 0 = Down, 1 = Left, 2 = Right, 3 = Up
+    int direction;                
     float animationTimer;         
     float frameSpeed;            
     int maxFrames;                

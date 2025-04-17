@@ -7,9 +7,14 @@
 void Player::Update(float delta_time) {
     animationTimer += delta_time;
 
-    if (animationTimer >= frameSpeed) {
+    if (animationTimer >= frameSpeed && maxFrames > 1) {
         animationTimer = 0.0f;
-        currentFrame = (currentFrame + 1) % maxFrames;
+        
+        if (animation_state == Animation_type::MOVING) {
+            currentFrame = (currentFrame + 1) % maxFrames;
+        } else if (animation_state == Animation_type::IDLE) {
+            currentFrame = (currentFrame + 1) % 2;
+        }
     }
 
     current_state->Update(*this, delta_time);
@@ -35,11 +40,6 @@ void Player::Draw() {
 
     DrawTexturePro(playerSprite, src, dst, origin, 0.0f, WHITE);
 }
-
-
-
-
-
 
 void Player::SetState(PlayerState* new_state) {
     current_state = new_state;
@@ -67,7 +67,7 @@ Player::Player(Vector2 pos, float rad, float spd, int hp) {
     currentFrame = 0;
     maxFrames = 4;
     animationTimer = 0.0f;
-    frameSpeed = 0.12f;
+    frameSpeed = 0.3f;
     direction = 0;
 
     std::cout << "Sprite Width: " << playerSprite.width << std::endl;
@@ -86,6 +86,8 @@ Player::Player(Vector2 pos, float rad, float spd, int hp) {
 
 void PlayerIdle::Enter(Player& player) {
     player.color = SKYBLUE;
+    player.currentFrame = 0;
+    player.animation_state = Player::Animation_type::IDLE;
 }
 
 void PlayerIdle::Update(Player& player, float delta_time) {
@@ -116,6 +118,8 @@ void PlayerIdle::HandleCollision(Player& player, Entity* other_entity) {
 
 void PlayerMoving::Enter(Player& player) {
     player.color = GREEN;
+    player.currentFrame = 0;
+    player.animation_state = Player::Animation_type::MOVING;
 }
 
 void PlayerMoving::Update(Player& player, float delta_time) {
@@ -125,13 +129,13 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         player.velocity.y -= 1.0f;
         player.direction = 0; // UP
     }
-    if (IsKeyDown(KEY_A)) {
-        player.velocity.x -= 1.0f;
-        player.direction = 1; // LEFT
-    }
     if (IsKeyDown(KEY_S)) {
         player.velocity.y += 1.0f;
         player.direction = 2; // DOWN
+    }
+    if (IsKeyDown(KEY_A)) {
+        player.velocity.x -= 1.0f;
+        player.direction = 1; // LEFT
     }
     if (IsKeyDown(KEY_D)) {
         player.velocity.x += 1.0f;

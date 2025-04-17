@@ -6,6 +6,10 @@
 #include "Entity.hpp"
 #include "TileMap.hpp"
 
+#define GAME_SCENE_SPRITE_SLIME "Assets/Sprites/slime.png"
+#define GAME_SCENE_SPRITE_BEE "Assets/Sprites/bee.png"
+#define GAME_SCENE_SPRITE_GHOST "Assets/Sprites/ghost.png"
+
 class Enemy;
 
 class EnemyState {
@@ -56,10 +60,27 @@ public:
     Color color;
 
     bool active;
-
     float detection_radius;
     float aggro_radius;
     float ready_attack_radius;
+
+    enum class animation_type {
+        WANDERING, 
+        CHARGING, 
+        ATTACKING
+    };
+
+    animation_type animation_state;
+
+    Texture2D beeSprite;
+    Rectangle beeFrameRect;
+    Rectangle beeDR;
+    int currentFrame;
+    float frameWidth, frameHeight;
+    int direction;
+    float animationTimer;
+    float frameSpeed;
+    int maxFrames;
 
     Vector2 velocity;
     Vector2 acceleration;
