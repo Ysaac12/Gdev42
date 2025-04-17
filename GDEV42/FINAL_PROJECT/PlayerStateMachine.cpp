@@ -5,15 +5,41 @@
 
 
 void Player::Update(float delta_time) {
+    animationTimer += delta_time;
+
+    if (animationTimer >= frameSpeed) {
+        animationTimer = 0.0f;
+        currentFrame = (currentFrame + 1) % maxFrames;
+    }
+
     current_state->Update(*this, delta_time);
 }
 
+
 void Player::Draw() {
-    if (current_state == &attacking) {
-        DrawCircleLines(position.x, position.y, attack_radius, RED);
-    }
-    DrawCircleV(position, radius, color);
+    Rectangle src = {
+        frameWidth * currentFrame,
+        frameHeight * direction,
+        frameWidth,
+        frameHeight
+    };
+
+    Rectangle dst = {
+        position.x,
+        position.y,
+        frameWidth,
+        frameHeight
+    };
+
+    Vector2 origin = { frameWidth / 2, frameHeight / 2 };
+
+    DrawTexturePro(playerSprite, src, dst, origin, 0.0f, WHITE);
 }
+
+
+
+
+
 
 void Player::SetState(PlayerState* new_state) {
     current_state = new_state;
@@ -29,12 +55,31 @@ Player::Player(Vector2 pos, float rad, float spd, int hp) {
     radius = rad;
     speed = spd;
     health = hp;
-    attack_radius = 50.0f;
-    
+
     playerSprite = LoadTexture(GAME_SCENE_SPRITE_EYEBALL);
-    frameWidth = playerSprite.width/4;
-    frameHeight = playerSprite.height/4; 
-    playerFrameRect = {0.0f, 0.0f, frameWidth, frameHeight};
+    if (playerSprite.id == 0) {
+        std::cout << "Failed to load eyeball sprite!" << std::endl;
+    } else {
+        std::cout << "Successfully loaded eyeball sprite1" << std::endl;
+    }
+    frameWidth = (float)(playerSprite.width / 4);
+    frameHeight = (float)(playerSprite.height / 4);
+    currentFrame = 0;
+    maxFrames = 4;
+    animationTimer = 0.0f;
+    frameSpeed = 0.12f;
+    direction = 0;
+
+    std::cout << "Sprite Width: " << playerSprite.width << std::endl;
+    std::cout << "Sprite Height: " << playerSprite.height << std::endl;
+    std::cout << "Frame Width: " << frameWidth << std::endl;
+    std::cout << "Frame Height: " << frameHeight << std::endl;
+
+
+    velocity = {0, 0};
+    acceleration = {0, 0};
+    in_attacking = false;
+    attack_radius = 40.0f;
 
     SetState(&idle);
 }
@@ -78,30 +123,31 @@ void PlayerMoving::Update(Player& player, float delta_time) {
 
     if (IsKeyDown(KEY_W)) {
         player.velocity.y -= 1.0f;
-        
+        player.direction = 0; // UP
     }
     if (IsKeyDown(KEY_A)) {
         player.velocity.x -= 1.0f;
+        player.direction = 1; // LEFT
     }
     if (IsKeyDown(KEY_S)) {
         player.velocity.y += 1.0f;
+        player.direction = 2; // DOWN
     }
     if (IsKeyDown(KEY_D)) {
         player.velocity.x += 1.0f;
+        player.direction = 3; // RIGHT
     }
 
     player.velocity = Vector2Scale(Vector2Normalize(player.velocity), player.speed * delta_time);
-    // player.position = Vector2Add(player.position, player.velocity);
     Vector2 new_position = Vector2Add(player.position, player.velocity);
 
-    // Make a temporary entity to check future collision
+    // Collision check
     Player temp_player = player;
     temp_player.position = new_position;
 
     if (player.tile_map && !player.tile_map->CheckTileCollision(&temp_player)) {
         player.position = new_position;
     }
-
 
     if (player.invulnerable_timer > 0.0f) {
         player.invulnerable_timer -= delta_time;
@@ -116,7 +162,7 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         player.SetState(&player.attacking);
     }
 
-    if(Vector2Length(player.velocity) == 0) {
+    if (Vector2Length(player.velocity) == 0) {
         player.SetState(&player.idle);
     }
 }

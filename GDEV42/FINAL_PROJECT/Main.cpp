@@ -137,6 +137,7 @@ int main() {
         EndMode2D();
         if (game_ongoing) {
             DrawText(to_string(player.health).c_str(), 10, 10, 50, WHITE);
+            DrawText(TextFormat("Pos: (%.0f, %.0f)", player.position.x, player.position.y), 10, 10, 20, WHITE);
         }
         else {
             if (enemy_lose) {
