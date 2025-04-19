@@ -39,6 +39,10 @@ void Player::Draw() {
     Vector2 origin = { frameWidth / 2, frameHeight / 2 };
 
     DrawTexturePro(playerSprite, src, dst, origin, 0.0f, WHITE);
+
+    if(current_state == &attacking) {
+        DrawCircleLines(position.x, position.y, attack_radius, RED);
+    }
 }
 
 void Player::SetState(PlayerState* new_state) {

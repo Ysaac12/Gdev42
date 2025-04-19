@@ -11,7 +11,7 @@ void Enemy::Update(float delta_time) {
     if(animationTimer >= frameSpeed && maxFrames > 1) {
         animationTimer = 0.0f;
 
-        if(animation_state == animation_type::WANDERING) {
+        if(animation_state == Animation_type::WANDERING) {
             currentFrame = (currentFrame + 1) % maxFrames;
         }
     }

@@ -8,6 +8,7 @@
 
 #include "PlayerStateMachine.cpp"
 #include "EnemyStateMachine.cpp"
+#include "slimeStateMachine.cpp"
 #include "TileMap.cpp"
 
 const int WINDOW_WIDTH(1280);
@@ -66,23 +67,22 @@ int main() {
 
     TileMap Map;
     Map.LoadTilemapData("TileInfo.txt");
-    Player player( Map.playerPos, 15.0f, 150.0f, 5);
+    Player player( Map.playerPos, 15.0f, 150.0f, 100);
     vector<Enemy> enemies;
     Enemy enemy01(Map.enemyPos, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
-    Enemy enemy02(Map.enemyPos2, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
-    Enemy enemy03(Map.enemyPos3, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
+    Slime slime01({300,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
+
     player.setTileMap(&Map);
     
     enemy01.setTileMap(&Map);
-    enemy02.setTileMap(&Map);
-    enemy03.setTileMap(&Map);
+
+    slime01.setTileMap(&Map);
+
 
     bool game_ongoing = true;
     bool enemy_lose = false;
 
     enemies.push_back(enemy01);
-    enemies.push_back(enemy02);
-    enemies.push_back(enemy03);
 
     camera_window = {player.position.x - 150, player.position.y - 150, 300.0f, 300.0f};
 
@@ -97,6 +97,9 @@ int main() {
         if (game_ongoing) {
             enemy_lose = true;
             player.Update(delta_time);
+            slime01.Update(delta_time);
+            slime01.HandleCollision(&player);
+            player.HandleCollision(&slime01);
             for (size_t i = 0; i < enemies.size(); i++) {
                 if(enemies[i].active) {
                     enemy_lose = false;
@@ -127,6 +130,7 @@ int main() {
         ClearBackground(BLACK);
         Map.DrawTilemap();
         if (game_ongoing) {
+            slime01.Draw();
             player.Draw();
             for (size_t i = 0; i < enemies.size(); i++) {
                 if (enemies[i].active) {
@@ -137,7 +141,7 @@ int main() {
         EndMode2D();
         if (game_ongoing) {
             DrawText(to_string(player.health).c_str(), 10, 10, 50, WHITE);
-            DrawText(TextFormat("Pos: (%.0f, %.0f)", player.position.x, player.position.y), 10, 10, 20, WHITE);
+            DrawText(TextFormat("Pos: (%.0f, %.0f)", player.position.x, player.position.y), 120, 10, 20, WHITE);
         }
         else {
             if (enemy_lose) {
