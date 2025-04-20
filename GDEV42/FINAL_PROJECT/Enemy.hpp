@@ -7,7 +7,6 @@
 #include "TileMap.hpp"
 
 #define GAME_SCENE_SPRITE_BEE "Assets/Sprites/bee.png"
-#define GAME_SCENE_SPRITE_GHOST "Assets/Sprites/ghost.png"
 
 class Enemy;
 

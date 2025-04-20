@@ -76,7 +76,7 @@ Slime::Slime(Vector2 pos, float spd, float rad, float d_radius, float a_radius, 
     frameHeight = (float) (slimeSprite.height /4);
     currentFrame = 0;
     maxFrames = 35;
-    int animationStartFrame = 0;
+    animationStartFrame = 0;
     frameSpeed = .3f;
     direction = 0;
 

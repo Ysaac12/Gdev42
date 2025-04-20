@@ -9,6 +9,7 @@
 #include "PlayerStateMachine.cpp"
 #include "EnemyStateMachine.cpp"
 #include "slimeStateMachine.cpp"
+#include "GhostStateMachine.cpp"
 #include "TileMap.cpp"
 
 const int WINDOW_WIDTH(1280);
@@ -19,7 +20,7 @@ using namespace std;
 
 
 Rectangle camera_window = {(WINDOW_WIDTH / 2) - 150, (WINDOW_HEIGHT / 2) - 150, 300.0f, 300.0f};
-float cam_drift = 0.5f;
+float cam_drift = 2.0f;
 float cam_zoom;
 bool zoom_in;
 
@@ -70,14 +71,13 @@ int main() {
     Player player( Map.playerPos, 15.0f, 150.0f, 100);
     vector<Enemy> enemies;
     Enemy enemy01(Map.enemyPos, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
-    Slime slime01({300,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
+    Slime slime01({1000,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
+    Ghost ghost01 ({1000,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
 
     player.setTileMap(&Map);
-    
     enemy01.setTileMap(&Map);
-
     slime01.setTileMap(&Map);
-
+    ghost01.setTileMap(&Map);
 
     bool game_ongoing = true;
     bool enemy_lose = false;
@@ -89,7 +89,7 @@ int main() {
     Camera2D camera_view = {0};
     camera_view.target = player.position;
     camera_view.offset = {WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2};
-    camera_view.zoom = 1.0f;
+    camera_view.zoom = 2.0f;
 
     while (!WindowShouldClose()) {
         float delta_time = GetFrameTime();
@@ -97,9 +97,15 @@ int main() {
         if (game_ongoing) {
             enemy_lose = true;
             player.Update(delta_time);
+            player.HandleCollision(&slime01);
+            player.HandleCollision(&ghost01);
+
             slime01.Update(delta_time);
             slime01.HandleCollision(&player);
-            player.HandleCollision(&slime01);
+
+            ghost01.Update(delta_time);
+            ghost01.HandleCollision(&player);
+
             for (size_t i = 0; i < enemies.size(); i++) {
                 if(enemies[i].active) {
                     enemy_lose = false;
@@ -132,6 +138,7 @@ int main() {
         if (game_ongoing) {
             slime01.Draw();
             player.Draw();
+            ghost01.Draw();
             for (size_t i = 0; i < enemies.size(); i++) {
                 if (enemies[i].active) {
                     enemies[i].Draw();
