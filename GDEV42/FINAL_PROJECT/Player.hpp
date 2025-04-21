@@ -9,8 +9,10 @@
 
 #include <raylib.h>
 #include <raymath.h>
+#include <vector>
 #include "Entity.hpp"
 #include "TileMap.hpp"
+#include "projectile.hpp"
 
 class Player;
 
@@ -65,6 +67,8 @@ public:
 // Base Player Class
 class Player : public Entity {
 public:
+    std::vector<Projectile> projectiles;
+
     enum class Animation_type {
         IDLE, 
         MOVING
@@ -75,6 +79,7 @@ public:
     TileMap*  tile_map;
 
     Texture2D playerSprite;
+    Texture2D projectileSprite;
     Rectangle playerFrameRect;
     Rectangle playerDR;
     int currentFrame;

@@ -217,7 +217,13 @@ void GhostChasing::Update(Ghost& ghost, float delta_time) {
 }
 
 void GhostAttacking::Update(Ghost& ghost, float delta_time) {
+    if (ghost.invulnerable_timer > 0.0f) {
+        ghost.invulnerable_timer -= delta_time;
+    }
 
+    if (ghost.health <= 0) {
+        ghost.active = false;
+    }
 }
 
 void GhostWandering::HandleCollision(Ghost& ghost, Entity* other_entity) {
@@ -238,5 +244,7 @@ void GhostChasing::HandleCollision(Ghost& ghost, Entity* other_entity) {
 }
 
 void GhostAttacking::HandleCollision(Ghost& ghost, Entity* other_entity) {
-
+    if (!CheckCollisionCircles(ghost.position, ghost.attack_range, other_entity->position, other_entity->radius)) {
+        ghost.SetState(&ghost.chasing);
+    }
 }

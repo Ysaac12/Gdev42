@@ -10,6 +10,7 @@
 #include "EnemyStateMachine.cpp"
 #include "slimeStateMachine.cpp"
 #include "GhostStateMachine.cpp"
+#include "projectile.cpp"
 #include "TileMap.cpp"
 
 const int WINDOW_WIDTH(1280);
@@ -72,7 +73,7 @@ int main() {
     vector<Enemy> enemies;
     Enemy enemy01(Map.enemyPos, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
     Slime slime01({1000,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
-    Ghost ghost01 ({1000,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
+    Ghost ghost01 ({400,500}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
 
     player.setTileMap(&Map);
     enemy01.setTileMap(&Map);
@@ -136,9 +137,13 @@ int main() {
         ClearBackground(BLACK);
         Map.DrawTilemap();
         if (game_ongoing) {
-            slime01.Draw();
             player.Draw();
-            ghost01.Draw();
+            if(slime01.active) {
+                slime01.Draw();
+            }
+            if(ghost01.active) {
+                ghost01.Draw();
+            }
             for (size_t i = 0; i < enemies.size(); i++) {
                 if (enemies[i].active) {
                     enemies[i].Draw();

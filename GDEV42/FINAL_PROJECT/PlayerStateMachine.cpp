@@ -17,6 +17,8 @@ void Player::Update(float delta_time) {
         }
     }
 
+    for (auto& p : projectiles) p.Update(delta_time);
+
     current_state->Update(*this, delta_time);
 }
 
@@ -40,9 +42,12 @@ void Player::Draw() {
 
     DrawTexturePro(playerSprite, src, dst, origin, 0.0f, WHITE);
 
+    for (auto& p : projectiles) p.Draw();
+
     if(current_state == &attacking) {
         DrawCircleLines(position.x, position.y, attack_radius, RED);
     }
+
 }
 
 void Player::SetState(PlayerState* new_state) {
@@ -51,6 +56,13 @@ void Player::SetState(PlayerState* new_state) {
 }
 
 void Player::HandleCollision(Entity* other_entity) {
+    for (auto& proj : projectiles) {
+        if (proj.active && CheckCollisionCircles(proj.position, proj.radius, other_entity->position, other_entity->radius)) {
+            proj.active = false; // deactivate projectile
+            other_entity->health -= 1;
+            other_entity->invulnerable_timer = 1.0f;
+        }
+    }
     current_state->HandleCollision(*this, other_entity);
 }
 
@@ -61,6 +73,8 @@ Player::Player(Vector2 pos, float rad, float spd, int hp) {
     health = hp;
 
     playerSprite = LoadTexture(GAME_SCENE_SPRITE_EYEBALL);
+    projectileSprite = LoadTexture(GAME_SCENE_EYEBALL_PROJECTILE);
+
     if (playerSprite.id == 0) {
         std::cout << "Failed to load eyeball sprite!" << std::endl;
     } else {
@@ -103,7 +117,7 @@ void PlayerIdle::Update(Player& player, float delta_time) {
         player.SetState(&player.blocking);
     }
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+    if (IsKeyPressed(KEY_SPACE)) {
         player.SetState(&player.attacking);
     }
 
@@ -161,12 +175,12 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         player.invulnerable_timer -= delta_time;
     }
 
-    if (IsKeyPressed(KEY_SPACE) && Vector2Length(player.velocity) > 0) {
+    if (IsKeyPressed(KEY_LEFT_SHIFT) && Vector2Length(player.velocity) > 0) {
         player.velocity = Vector2Normalize(player.velocity);
         player.SetState(&player.dodging);
     }
 
-    if (IsMouseButtonDown(MOUSE_BUTTON_LEFT)) {
+    if (IsKeyPressed(KEY_SPACE)) {
         player.SetState(&player.attacking);
     }
 
@@ -209,6 +223,17 @@ void PlayerAttacking::Enter(Player& player) {
     player.color = RED;
 
     active_time = 0.25f;
+
+    Vector2 dir = { 0, 0 };
+    switch (player.direction) {
+        case 0: dir = { 0, -1 }; break; // UP
+        case 1: dir = { -1, 0 }; break; // LEFT
+        case 2: dir = { 0, 1 }; break;  // DOWN
+        case 3: dir = { 1, 0 }; break;  // RIGHT
+}
+    Projectile proj(player.position, Vector2Scale(dir, 400.0f), 10.0f, player.projectileSprite, BLUE);
+    player.projectiles.push_back(proj);
+
 }
 
 void PlayerAttacking::Update(Player& player, float delta_time) {
