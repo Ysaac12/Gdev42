@@ -69,10 +69,20 @@ void SpawnWave(std::vector<BaseEnemy*>& enemies, TileMap& map, int wave_num) {
 
     while (points > 0) {
         int type = GetRandomValue(0, 2); // 0 = Slime(2pts), 1 = Ghost(1pt), 2 = Bee(3pts)
-        Vector2 spawn = {
-            static_cast<float>(GetRandomValue(300, 1000)),
-            static_cast<float>(GetRandomValue(300, 700))
-        };
+        int spawnLocation = GetRandomValue(0,2);
+        Vector2 spawn;
+
+        switch (spawnLocation) {
+            case 0:
+                spawn = {1220,180};
+                break;
+            case 1:
+                spawn = {1220,550};
+                break;
+            case 2:
+                spawn = {50,550};
+                break;
+        }
 
         if (type == 0 && points >= 2) {
             Slime* slime = new Slime(spawn, 50, 15, 100, 250, 15, 2);
@@ -174,6 +184,7 @@ int main() {
         if (game_ongoing) {
             DrawText(TextFormat("Health: %d", player.health), 10, 10, 30, WHITE);
             DrawText(TextFormat("Wave: %d", current_wave), 10, 50, 30, YELLOW);
+            DrawText(TextFormat("Position: %.0f %.0f", player.position.x, player.position.y), 10, 80, 30, YELLOW);
         } else {
             ClearBackground(BLACK);
             DrawText("GAME OVER", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 25, 100, RED);

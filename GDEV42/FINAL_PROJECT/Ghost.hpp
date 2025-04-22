@@ -59,6 +59,7 @@ public:
     Rectangle ghostDR;
 
     int animationStartFrame;
+    float hideTimer;
     bool playOnce; 
 
 

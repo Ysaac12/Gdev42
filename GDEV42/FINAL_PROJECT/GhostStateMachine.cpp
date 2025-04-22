@@ -109,6 +109,8 @@ Ghost::Ghost(Vector2 pos, float spd, float rad, float d_radius, float a_radius, 
     frameSpeed = .3f;
     direction = 0;
 
+    hideTimer = 3.0f;
+
     SetState(&wandering);
 
 }
@@ -120,16 +122,21 @@ void GhostWandering::Enter(Ghost& ghost) {
     change_direction_cooldown = GetRandomValue(1, 3);
     move_direction.x = GetRandomValue(-100.0f, 100.0f) / 100.0f;
     move_direction.y = GetRandomValue(-100.0f, 100.0f) / 100.0f;
-
     move_direction = Vector2Normalize(move_direction);
     ghost.entity_following = nullptr;
 
-    ghost.animationStartFrame = 0;
-    ghost.maxFrames = 3;
+    if (ghost.hideTimer <= 0.0f) {
+        ghost.animationStartFrame = 4;  
+        ghost.maxFrames = 1;
+    } else {
+        ghost.animationStartFrame = 0;
+        ghost.maxFrames = 3;
+    }
+
     ghost.currentFrame = ghost.animationStartFrame;
     ghost.frameSpeed = 0.15f;
-
 }
+
 
 void GhostChasing::Enter(Ghost& ghost) {
     ghost.playOnce = false;
@@ -148,49 +155,51 @@ void GhostAttacking::Enter(Ghost& ghost) {
 void GhostWandering::Update(Ghost& ghost, float delta_time) {
     ghost.velocity = Vector2Zero();
 
+    // Update hide timer
+    if (ghost.hideTimer > 0.0f) {
+        ghost.hideTimer -= delta_time;
+    }
+
+
+    if (ghost.hideTimer <= 0.0f && ghost.animationStartFrame != 4) {
+        ghost.animationStartFrame = 3;
+        ghost.maxFrames = 1;
+        ghost.currentFrame = 3;
+    } else if (ghost.hideTimer > 0.0f && ghost.animationStartFrame != 0) {
+        ghost.animationStartFrame = 0;
+        ghost.maxFrames = 3;
+        ghost.currentFrame = 0;
+    }
+
     if (change_direction_cooldown <= 0.0f) {
         move_direction.x = GetRandomValue(-100.0f, 100.0f) / 100.0f;
         move_direction.y = GetRandomValue(-100.0f, 100.0f) / 100.0f;
-
         move_direction = Vector2Normalize(move_direction);
-        
         change_direction_cooldown = GetRandomValue(1, 3);
-    }
-    else {
+    } else {
         change_direction_cooldown -= delta_time;
     }
+
     ghost.velocity = Vector2Scale(move_direction, 50.0f);
 
-    if (abs(ghost.velocity.x) > abs(ghost.velocity.y)){
-        if (ghost.velocity.x < 0) {
-            ghost.direction = 1;    // LEFT
-        } 
-        if (ghost.velocity.x > 0) {
-            ghost.direction = 3;    //RIGHT
-        }
+    // Direction
+    if (fabs(ghost.velocity.x) > fabs(ghost.velocity.y)) {
+        ghost.direction = ghost.velocity.x < 0 ? 1 : 3;
     } else {
-        if(ghost.velocity.y < 0) {
-            ghost.direction = 0;    // UP
-        }
-        if(ghost.velocity.y > 0) {
-            ghost.direction = 2;    // DOWN
-        }
+        ghost.direction = ghost.velocity.y < 0 ? 0 : 2;
     }
 
     Vector2 new_position = Vector2Add(ghost.position, Vector2Scale(ghost.velocity, delta_time));
 
-    Ghost temp_enemy = ghost;
-    temp_enemy.position = new_position;
+    Ghost temp_ghost = ghost;
+    temp_ghost.position = new_position;
 
-    if (ghost.tile_map && !ghost.tile_map->CheckTileCollision(&temp_enemy)) {
+    if (ghost.tile_map && !ghost.tile_map->CheckTileCollision(&temp_ghost)) {
         ghost.position = new_position;
     } else {
-        move_direction.x = GetRandomValue(-100, 100) / 100.0f;
-        move_direction.y = GetRandomValue(-100, 100) / 100.0f;
-        move_direction = Vector2Normalize(move_direction);
-        change_direction_cooldown = GetRandomValue(1, 3);  
+        move_direction = Vector2Normalize({GetRandomValue(-100, 100) / 100.0f, GetRandomValue(-100, 100) / 100.0f});
+        change_direction_cooldown = GetRandomValue(1, 3);
     }
-    
 
     if (ghost.invulnerable_timer > 0.0f) {
         ghost.invulnerable_timer -= delta_time;
