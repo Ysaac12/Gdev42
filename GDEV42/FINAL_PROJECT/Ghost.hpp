@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "Entity.hpp"
+#include "EnemyBase.hpp"
 #include "TileMap.hpp"
 
 #define GAME_SCENE_SPRITE_GHOST "Assets/Sprites/ghost.png"
@@ -41,15 +42,8 @@ public:
     void HandleCollision(Ghost& ghost, Entity* other_entity);   
 };
 
-class Ghost : public Entity {
+class Ghost : public BaseEnemy {
 public: 
-    TileMap* tile_map;
-    Color color; 
-
-    bool active; 
-    float detection_radius;
-    float aggro_radius;
-    float attack_range;
 
     enum class Animation_type {
         WANDERING, 
@@ -60,23 +54,13 @@ public:
 
     Animation_type animation_state;
 
-    Texture2D ghostSprite; 
+    
     Rectangle ghostFrameRect;
     Rectangle ghostDR;
-    int currentFrame;
-    float frameWidth, frameHeight;
-    int direction; 
-    float animationTimer; 
-    float frameSpeed;
+
     int animationStartFrame;
-    int maxFrames; 
     bool playOnce; 
 
-    Vector2 velocity;
-    Vector2 Acceleration; 
-    float speed; 
-
-    Entity* entity_following;
 
     GhostWandering wandering;
     GhostChasing chasing; 
@@ -88,13 +72,16 @@ public:
 
     Ghost(Vector2 pos, float spd, float rad, float d_radius, float a_radius, float r_radius, int hp);
 
-    void Update(float delta_time);
-    void Draw();
+    void Update(float delta_time) override;
+    void Draw() override;
     void SetState(GhostState* new_state);
-    void HandleCollision(Entity* other_entity);
+    void HandleCollision(Entity* other_entity) override;
 
 private:
     GhostState* current_state;
+    bool flash_visible;
+    float flash_timer;
+    float flash_interval;
 
 
 };

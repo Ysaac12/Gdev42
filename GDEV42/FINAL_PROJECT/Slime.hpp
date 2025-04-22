@@ -4,6 +4,7 @@
 #include <raylib.h>
 #include <raymath.h>
 #include "Entity.hpp"
+#include "EnemyBase.hpp"
 #include "TileMap.hpp"
 
 #define GAME_SCENE_SPRITE_SLIME "Assets/Sprites/slime.png"
@@ -42,15 +43,8 @@ public:
     void HandleCollision(Slime& slime, Entity* other_entity);
 };
 
-class Slime : public Entity {
+class Slime : public BaseEnemy {
 public: 
-    TileMap* tile_map;
-    Color color;
-
-    bool active;
-    float detection_radius;
-    float aggro_radius;
-    float attack_range;
 
     enum class Animation_type {
         WANDERING, 
@@ -61,23 +55,11 @@ public:
 
     Animation_type animation_state;
 
-    Texture2D slimeSprite;
     Rectangle slimeFrameRect;
     Rectangle slimeDR;
-    int currentFrame;
-    float frameWidth, frameHeight;
-    int direction;
-    float animationTimer;
-    float frameSpeed;
+;
     int animationStartFrame;
-    int maxFrames;
     bool playOnce;
-
-    Vector2 velocity;
-    Vector2 acceleration;
-    float speed;
-
-    Entity* entity_following;
 
     slimeWandering wandering;
     slimeChasing chasing;
@@ -89,13 +71,16 @@ public:
 
     Slime(Vector2 pos, float spd, float rad, float d_radius, float a_radius, float r_radius, int hp);
 
-    void Update(float delta_time);
-    void Draw();
+    void Update(float delta_time) override;
+    void Draw() override;
     void SetState(SlimeState* new_state);
-    void HandleCollision(Entity* other_entity);
+    void HandleCollision(Entity* other_entity) override;
 
 private:
     SlimeState* current_state;
+    bool flash_visible;
+    float flash_timer;
+    float flash_interval;
         
 };
 

@@ -10,6 +10,13 @@ void Slime::Update(float delta_time) {
     int frameRange = maxFrames;
     animationTimer += delta_time;
 
+    if (current_state == nullptr) {
+        std::cerr << "ERROR: Slime current_state is NULL!\n";
+        return;
+    } else {
+        cout << "STATE: No error in Slime Update Function" << endl;
+    }
+
     if(animationTimer >= frameSpeed && maxFrames > 1) {
         animationTimer = 0.0f;
 
@@ -21,14 +28,27 @@ void Slime::Update(float delta_time) {
         } else {
             currentFrame = animationStartFrame + ((currentFrame - animationStartFrame + 1) % frameRange);
         }
-        
-    
     }
+
+    if (invulnerable_timer > 0.0f) {
+        invulnerable_timer -= delta_time;
+
+        flash_timer += delta_time;
+        if (flash_timer >= flash_interval) {
+            flash_visible = !flash_visible;
+            flash_timer = 0.0f;
+        }
+    } else {
+        flash_visible = true;
+    }
+
 
     current_state->Update(*this, delta_time);
 }
 
 void Slime::Draw() {
+    if (!active || sprite.id == 0 || !flash_visible) return;
+
     Rectangle src = {
         frameWidth * currentFrame,
         frameHeight * direction,
@@ -45,11 +65,21 @@ void Slime::Draw() {
 
     Vector2 origin = { frameWidth /2, frameHeight /2};
 
-    DrawTexturePro(slimeSprite, src, dst, origin, 0.0f, WHITE);
+    DrawTexturePro(sprite, src, dst, origin, 0.0f, WHITE);
     DrawCircleLines(position.x, position.y, detection_radius, VIOLET);
     DrawCircleLines(position.x, position.y, aggro_radius, BLUE);
-    DrawCircleLines(position.x, position.y, attack_range, RED);
+    DrawCircleLines(position.x, position.y, ready_attack_radius, RED);
 
+    
+    float bar_width = 40;
+    float bar_height = 6;
+    float bar_x = position.x - bar_width / 2;
+    float bar_y = position.y - frameHeight / 2 - 10;
+
+    float hp_percent = (float)health / maxHealth;
+    DrawRectangle(bar_x, bar_y, bar_width, bar_height, DARKGRAY);
+    DrawRectangle(bar_x, bar_y, bar_width * hp_percent, bar_height, MAROON);
+    DrawRectangleLines(bar_x, bar_y, bar_width, bar_height, BLACK);
 }
 
 void Slime::SetState(SlimeState* new_state) {
@@ -62,18 +92,24 @@ void Slime::HandleCollision(Entity* other_entity) {
 }
 
 Slime::Slime(Vector2 pos, float spd, float rad, float d_radius, float a_radius, float r_radius, int hp) {
+    enemyID = 0;
     position = pos;
     speed = spd;
     radius = rad;
     detection_radius = d_radius;
     aggro_radius = a_radius;
-    attack_range = r_radius;
+    ready_attack_radius = r_radius;
     health = hp;
+    maxHealth = hp;
     active = true;
 
-    slimeSprite = LoadTexture(GAME_SCENE_SPRITE_SLIME);
-    frameWidth = (float) (slimeSprite.width/ 35);
-    frameHeight = (float) (slimeSprite.height /4);
+    flash_visible = true;
+    flash_timer = 0.0f;
+    flash_interval = 0.1f;
+
+    sprite = LoadTexture(GAME_SCENE_SPRITE_SLIME);
+    frameWidth = (float) (sprite.width/ 35);
+    frameHeight = (float) (sprite.height /4);
     currentFrame = 0;
     maxFrames = 35;
     animationStartFrame = 0;
@@ -249,13 +285,13 @@ void slimeChasing::HandleCollision(Slime& slime, Entity* other_entity) {
         slime.SetState(&slime.wandering);
     }
 
-    if(CheckCollisionCircles(slime.position, slime.attack_range, other_entity->position, other_entity->radius)) {
+    if(CheckCollisionCircles(slime.position, slime.ready_attack_radius, other_entity->position, other_entity->radius)) {
         slime.SetState(&slime.attack);
     }
 }
 
 void slimeAttacking::HandleCollision(Slime&slime, Entity* other_entity) {
-    if(!CheckCollisionCircles(slime.position, slime.attack_range, other_entity->position, other_entity->radius)) {
+    if(!CheckCollisionCircles(slime.position, slime.ready_attack_radius, other_entity->position, other_entity->radius)) {
         if (slime.currentFrame >= slime.animationStartFrame + slime.maxFrames - 1) {
             slime.SetState(&slime.chasing);
         }

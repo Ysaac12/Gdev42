@@ -56,11 +56,14 @@ void Player::SetState(PlayerState* new_state) {
 }
 
 void Player::HandleCollision(Entity* other_entity) {
+
+    
     for (auto& proj : projectiles) {
-        if (proj.active && CheckCollisionCircles(proj.position, proj.radius, other_entity->position, other_entity->radius)) {
-            proj.active = false; // deactivate projectile
+        if (proj.active && CheckCollisionCircles(proj.position, proj.radius, other_entity->position, other_entity->radius) && other_entity->invulnerable_timer <= 0.0f) {
+            proj.active = false; 
             other_entity->health -= 1;
             other_entity->invulnerable_timer = 1.0f;
+            PlaySound(projectileSFX);
         }
     }
     current_state->HandleCollision(*this, other_entity);
@@ -74,12 +77,15 @@ Player::Player(Vector2 pos, float rad, float spd, int hp) {
 
     playerSprite = LoadTexture(GAME_SCENE_SPRITE_EYEBALL);
     projectileSprite = LoadTexture(GAME_SCENE_EYEBALL_PROJECTILE);
+    
+    projectileSFX = LoadSound(GAME_SCENE_COLLISION_SFX);
+    damageSFX = LoadSound (GAME_SCENE_DAMAGE_SFX);
+    dodgeSFX = LoadSound(GAME_SCENE_DODGE_SFX);
 
-    if (playerSprite.id == 0) {
-        std::cout << "Failed to load eyeball sprite!" << std::endl;
-    } else {
-        std::cout << "Successfully loaded eyeball sprite1" << std::endl;
-    }
+    SetSoundPitch(damageSFX, 2.5);
+    SetSoundPitch(dodgeSFX, 5.5);
+    
+;
     frameWidth = (float)(playerSprite.width / 4);
     frameHeight = (float)(playerSprite.height / 4);
     currentFrame = 0;
@@ -87,12 +93,6 @@ Player::Player(Vector2 pos, float rad, float spd, int hp) {
     animationTimer = 0.0f;
     frameSpeed = 0.3f;
     direction = 0;
-
-    std::cout << "Sprite Width: " << playerSprite.width << std::endl;
-    std::cout << "Sprite Height: " << playerSprite.height << std::endl;
-    std::cout << "Frame Width: " << frameWidth << std::endl;
-    std::cout << "Frame Height: " << frameHeight << std::endl;
-
 
     velocity = {0, 0};
     acceleration = {0, 0};
@@ -117,7 +117,7 @@ void PlayerIdle::Update(Player& player, float delta_time) {
         player.SetState(&player.blocking);
     }
 
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyDown(KEY_SPACE)) {
         player.SetState(&player.attacking);
     }
 
@@ -128,6 +128,7 @@ void PlayerIdle::Update(Player& player, float delta_time) {
 
 void PlayerIdle::HandleCollision(Player& player, Entity* other_entity) {
     if (CheckCollisionCircles(player.position, player.radius, other_entity->position, other_entity->radius) && player.invulnerable_timer <= 0.0f) {
+        PlaySound(player.damageSFX);
         player.health -= 2;
         player.invulnerable_timer = 1.0f;
     }
@@ -180,7 +181,7 @@ void PlayerMoving::Update(Player& player, float delta_time) {
         player.SetState(&player.dodging);
     }
 
-    if (IsKeyPressed(KEY_SPACE)) {
+    if (IsKeyDown(KEY_SPACE)) {
         player.SetState(&player.attacking);
     }
 
@@ -192,10 +193,10 @@ void PlayerMoving::Update(Player& player, float delta_time) {
 void PlayerMoving::HandleCollision(Player& player, Entity* other_entity) {
     if (CheckCollisionCircles(player.position, player.radius, other_entity->position, other_entity->radius) && player.invulnerable_timer <= 0.0f) {
         player.health -= 2;
+        PlaySound(player.damageSFX);
         player.invulnerable_timer = 1.0f;
     }
 }
-
 
 void PlayerBlocking::Enter(Player& player) {
     player.color = BLUE;
@@ -214,6 +215,7 @@ void PlayerBlocking::Update(Player& player, float delta_time) {
 void PlayerBlocking::HandleCollision(Player& player, Entity* other_entity) {
     if (CheckCollisionCircles(player.position, player.radius, other_entity->position, other_entity->radius) && player.invulnerable_timer <= 0.0f) {
         player.health -= 1;
+        PlaySound(player.damageSFX);
         player.invulnerable_timer = 1.0f;
     }
 }
@@ -222,7 +224,7 @@ void PlayerBlocking::HandleCollision(Player& player, Entity* other_entity) {
 void PlayerAttacking::Enter(Player& player) {
     player.color = RED;
 
-    active_time = 0.25f;
+    active_time = .5f;
 
     Vector2 dir = { 0, 0 };
     switch (player.direction) {
@@ -255,6 +257,7 @@ void PlayerAttacking::Update(Player& player, float delta_time) {
 void PlayerAttacking::HandleCollision(Player& player, Entity* other_entity) {
     if (CheckCollisionCircles(player.position, player.radius, other_entity->position, other_entity->radius) && player.invulnerable_timer <= 0.0f) {
         player.health -= 2;
+        PlaySound(player.damageSFX);
         player.invulnerable_timer = 1.0f;
     }
 
@@ -267,7 +270,7 @@ void PlayerAttacking::HandleCollision(Player& player, Entity* other_entity) {
 
 void PlayerDodging::Enter(Player& player) {
     player.color = LIME;
-
+    PlaySound(player.dodgeSFX);
     dodge_direction = Vector2Scale(player.velocity, 500.0f);
     player.acceleration = dodge_direction;
 }
@@ -300,7 +303,9 @@ void PlayerDodging::Update(Player& player, float delta_time) {
 }
 
 void PlayerDodging::HandleCollision(Player& player, Entity* other_entity) {
-    if (CheckCollisionCircles(player.position, player.radius, other_entity->position, other_entity->radius)) {
-        player.health -= 0;
+    if (CheckCollisionCircles(player.position, player.radius, other_entity->position, other_entity->radius && player.invulnerable_timer <= 0.0f)) {
+        PlaySound(player.damageSFX);
+        player.invulnerable_timer = 1.0f;
+
     }
 }

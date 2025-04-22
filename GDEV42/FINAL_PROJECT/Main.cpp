@@ -5,25 +5,28 @@
 #include <vector>
 #include <string>
 
-
 #include "PlayerStateMachine.cpp"
-#include "EnemyStateMachine.cpp"
+#include "BeeStateMachine.cpp"
 #include "slimeStateMachine.cpp"
 #include "GhostStateMachine.cpp"
 #include "projectile.cpp"
 #include "TileMap.cpp"
 
+#define GAME_SCENE_MUSIC "Assets/Audio/Music/symphony.ogg"
+
 const int WINDOW_WIDTH(1280);
 const int WINDOW_HEIGHT(720);
 const float FPS(60.0f);
 
-using namespace std;
-
-
 Rectangle camera_window = {(WINDOW_WIDTH / 2) - 150, (WINDOW_HEIGHT / 2) - 150, 300.0f, 300.0f};
 float cam_drift = 2.0f;
-float cam_zoom;
-bool zoom_in;
+
+std::vector<BaseEnemy*> enemies;
+int current_wave = 1;
+int base_wave_points = 5;
+float wave_timer = 0.0f;
+float wave_delay = 2.0f;
+bool wave_cleared = false;
 
 void MoveCamera(Camera2D* cam, Player* player, float delta_time) {
     float cam_push_x = 0.0f;
@@ -35,13 +38,11 @@ void MoveCamera(Camera2D* cam, Player* player, float delta_time) {
         cam_push_x = player->position.x - (camera_window.x + camera_window.width);
         cam->target.x += cam_push_x;
         camera_window.x += cam_push_x;
-    }
-    else if (player->position.x < camera_window.x) {
+    } else if (player->position.x < camera_window.x) {
         cam_push_x = player->position.x - camera_window.x;
         cam->target.x += cam_push_x;
         camera_window.x += cam_push_x;
-    }
-    else {
+    } else {
         cam->target.x += drift_x;
         camera_window.x += drift_x;
     }
@@ -50,41 +51,65 @@ void MoveCamera(Camera2D* cam, Player* player, float delta_time) {
         cam_push_y = player->position.y - (camera_window.y + camera_window.height);
         cam->target.y += cam_push_y;
         camera_window.y += cam_push_y;
-    }
-    else if (player->position.y < camera_window.y) {
+    } else if (player->position.y < camera_window.y) {
         cam_push_y = player->position.y - camera_window.y;
         cam->target.y += cam_push_y;
         camera_window.y += cam_push_y;
-    }
-    else {
+    } else {
         cam->target.y += drift_y;
         camera_window.y += drift_y;
     }
 }
 
-int main() {
+void SpawnWave(std::vector<BaseEnemy*>& enemies, TileMap& map, int wave_num) {
+    for (auto* e : enemies) delete e;
+    enemies.clear();
 
-    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "MesaReyesRuiz_Homework4");
+    int points = base_wave_points + wave_num * 3;
+
+    while (points > 0) {
+        int type = GetRandomValue(0, 2); // 0 = Slime(2pts), 1 = Ghost(1pt), 2 = Bee(3pts)
+        Vector2 spawn = {
+            static_cast<float>(GetRandomValue(300, 1000)),
+            static_cast<float>(GetRandomValue(300, 700))
+        };
+
+        if (type == 0 && points >= 2) {
+            Slime* slime = new Slime(spawn, 50, 15, 100, 250, 15, 2);
+            slime->setTileMap(&map);
+            enemies.push_back(slime);
+            points -= 2;
+        } else if (type == 1 && points >= 1) {
+            Ghost* ghost = new Ghost(spawn, 50, 15, 100, 250, 15, 2);
+            ghost->setTileMap(&map);
+            enemies.push_back(ghost);
+            points -= 1;
+        } else if (type == 2 && points >= 3) {
+            Bee* bee = new Bee(spawn, 100, 15, 100, 250, 50, 2);
+            bee->setTileMap(&map);
+            enemies.push_back(bee);
+            points -= 3;
+        }
+    }
+
+    std::cout << "Wave " << wave_num << " spawned with " << enemies.size() << " enemies.\n";
+}
+
+int main() {
+    InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "Enemy Wave Spawn Example");
+    InitAudioDevice();
+    Music gameSceneMusic = LoadMusicStream(GAME_SCENE_MUSIC);
     SetTargetFPS(FPS);
 
     TileMap Map;
     Map.LoadTilemapData("TileInfo.txt");
-    Player player( Map.playerPos, 15.0f, 150.0f, 100);
-    vector<Enemy> enemies;
-    Enemy enemy01(Map.enemyPos, 100.0f, 15.0f, 100.0f, 250.0f, 50.0f, 2);
-    Slime slime01({1000,300}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
-    Ghost ghost01 ({400,500}, 50.0f, 15.0f, 100.0f, 250.0f, 15.0f, 2 );
 
+    Player player(Map.playerPos, 15.0f, 150.0f, 100);
     player.setTileMap(&Map);
-    enemy01.setTileMap(&Map);
-    slime01.setTileMap(&Map);
-    ghost01.setTileMap(&Map);
+
+    SpawnWave(enemies, Map, current_wave);
 
     bool game_ongoing = true;
-    bool enemy_lose = false;
-
-    enemies.push_back(enemy01);
-
     camera_window = {player.position.x - 150, player.position.y - 150, 300.0f, 300.0f};
 
     Camera2D camera_view = {0};
@@ -95,81 +120,75 @@ int main() {
     while (!WindowShouldClose()) {
         float delta_time = GetFrameTime();
 
+        if (IsMusicReady(gameSceneMusic)) {
+            UpdateMusicStream(gameSceneMusic);
+    
+            if (!IsMusicStreamPlaying(gameSceneMusic)) {
+                PlayMusicStream(gameSceneMusic);
+            }
+        }
+    
+
         if (game_ongoing) {
-            enemy_lose = true;
+            wave_cleared = true;
+
             player.Update(delta_time);
-            player.HandleCollision(&slime01);
-            player.HandleCollision(&ghost01);
 
-            slime01.Update(delta_time);
-            slime01.HandleCollision(&player);
-
-            ghost01.Update(delta_time);
-            ghost01.HandleCollision(&player);
-
-            for (size_t i = 0; i < enemies.size(); i++) {
-                if(enemies[i].active) {
-                    enemy_lose = false;
-                    enemies[i].Update(delta_time);
-                    enemies[i].HandleCollision(&player);
-                    player.HandleCollision(&enemies[i]);
+            for (auto* enemy : enemies) {
+                if (enemy->active) {
+                    enemy->Update(delta_time);
+                    enemy->HandleCollision(&player);
+                    player.HandleCollision(enemy);
+                    wave_cleared = false;
                 }
             }
-            
-            if(enemy_lose) {
-                game_ongoing = false;
+
+            if (wave_cleared) {
+                wave_timer += delta_time;
+                if (wave_timer >= wave_delay) {
+                    current_wave++;
+                    SpawnWave(enemies, Map, current_wave);
+                    wave_timer = 0.0f;
+                }
             }
 
-            if(player.health <= 0) {
+            if (player.health <= 0) {
                 game_ongoing = false;
             }
-
-            
-
-            // std::cout << player.health << std::endl;
         }
-        
+
         MoveCamera(&camera_view, &player, delta_time);
-        
 
         BeginDrawing();
         BeginMode2D(camera_view);
         ClearBackground(BLACK);
+
         Map.DrawTilemap();
-        if (game_ongoing) {
-            player.Draw();
-            if(slime01.active) {
-                slime01.Draw();
-            }
-            if(ghost01.active) {
-                ghost01.Draw();
-            }
-            for (size_t i = 0; i < enemies.size(); i++) {
-                if (enemies[i].active) {
-                    enemies[i].Draw();
-                } 
-            }
-        }
+        player.Draw();
+
+        for (auto* enemy : enemies)
+            if (enemy->active) enemy->Draw();
+
         EndMode2D();
+
         if (game_ongoing) {
-            DrawText(to_string(player.health).c_str(), 10, 10, 50, WHITE);
-            DrawText(TextFormat("Pos: (%.0f, %.0f)", player.position.x, player.position.y), 120, 10, 20, WHITE);
+            DrawText(TextFormat("Health: %d", player.health), 10, 10, 30, WHITE);
+            DrawText(TextFormat("Wave: %d", current_wave), 10, 50, 30, YELLOW);
+        } else {
+            ClearBackground(BLACK);
+            DrawText("GAME OVER", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 25, 100, RED);
         }
-        else {
-            if (enemy_lose) {
-                ClearBackground(BLACK);
-                DrawText("YOU WIN", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 25, 100, WHITE);
-            }
-            else if (!enemy_lose) {
-                ClearBackground(BLACK);
-                DrawText("YOU LOSE", WINDOW_WIDTH / 4, WINDOW_HEIGHT / 2 - 25, 100, WHITE);
-            }
-            
-        }
+
         EndDrawing();
     }
 
+    for (auto* e : enemies)
+        delete e;
+
+    UnloadMusicStream(gameSceneMusic);
+    UnloadSound(player.projectileSFX);
+    UnloadSound(player.damageSFX);
+
     CloseWindow();
-    
     return 0;
 }

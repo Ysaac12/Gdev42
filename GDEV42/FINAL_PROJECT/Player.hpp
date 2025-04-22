@@ -4,8 +4,10 @@
 #define GAME_SCENE_SPRITE_EYEBALL "/Users/ysaacmesa/Gdev42/GDEV42/FINAL_PROJECT/Assets/Sprites/eyeball.png"
 #define GAME_SCENE_EYEBALL_PROJECTILE "Assets/Texture/orb.png"
 #define GAME_SCENE_HEART "Assets/Texture/heartscreen.png"
-#define GAME_SCENE_MUSIC "Assets/Audio/Music/symphony.ogg"
 #define GAME_SCENE_COLLISION_SFX "Assets/Audio/Sounds/collision.wav"
+#define GAME_SCENE_DAMAGE_SFX "Assets/Audio/Sounds/playerDamage.ogg"
+#define GAME_SCENE_DODGE_SFX "Assets/Audio/Sounds/dodgeSound.wav"
+
 
 #include <raylib.h>
 #include <raymath.h>
@@ -80,6 +82,13 @@ public:
 
     Texture2D playerSprite;
     Texture2D projectileSprite;
+    Texture2D heartSprite;
+
+    Sound projectileSFX;
+    Sound damageSFX;
+    Sound dodgeSFX;
+
+
     Rectangle playerFrameRect;
     Rectangle playerDR;
     int currentFrame;

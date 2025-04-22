@@ -6,7 +6,7 @@
 
 class Entity {
 public:
-    int health;
+    int health, maxHealth;
     Vector2 position;
     float radius;
     Color color;
